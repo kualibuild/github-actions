@@ -1,0 +1,20 @@
+name: NPM Publish
+description: Publish an npm package
+branding:
+  icon: hexagon
+  color: green
+inputs:
+  npm_token:
+    description: The npm token to use for authentication
+    required: true
+  npm_registry:
+    description: The registry to publish to. Defaults to publishing to https://npm.pkg.github.com
+    default: https://npm.pkg.github.com
+    required: false
+  package_path:
+    description: The path to the directory where the package.json lives
+    required: false
+    default: '.'
+runs:
+  using: docker
+  image: Dockerfile

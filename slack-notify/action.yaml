@@ -1,0 +1,15 @@
+name: Slack notify
+description: Send a message via slack
+branding:
+  icon: message-circle
+  color: black
+inputs:
+  slack_webhook:
+    description: The Slack Webhook URL from your app configuration
+    required: true
+  text:
+    description: Text to send
+    required: true
+runs:
+  using: docker
+  image: Dockerfile
