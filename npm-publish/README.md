@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v1
       - uses: kualibuild/github-actions/npm-publish@master
         with:
-          # Required
-          npm_token: ${{ secrets.GITHUB_TOKEN }}
+          # Not required, default shown
+          npm_token: ${{ github.token }}
           # Not required, default shown
           npm_registry: https://npm.pkg.github.com
           # Not required, default shown

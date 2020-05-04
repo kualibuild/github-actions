@@ -14,10 +14,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: kualibuild/github-actions/docker-publish@master
         with:
-          # Required
-          docker_password: ${{ secrets.GITHUB_TOKEN }}
+          # Not Required, default shown
+          docker_password: ${{ github.token }}
           # Not required, default shown
-          docker_username: ${{ secrets.GITHUB_ACTOR }}
+          docker_username: ${{ github.actor }}
           # Not required, default shown
           docker_image_name: this_defaults_to_the_repo_name
           # Not required, default shown

@@ -1,11 +1,6 @@
 #!/bin/sh
 set -eu
 
-if [ -z "${INPUT_NPM_TOKEN}" ]; then
-  echo "Unable to find the npm token. Did you set with.npm_token?"
-  exit 1
-fi
-
 # ORG="$(printf ${GITHUB_REPOSITORY} | sed -r 's/^([^/]*).*$/\1/')"
 PACKAGE_PATH="${INPUT_PACKAGE_PATH}"
 NPM_REGISTRY="${INPUT_NPM_REGISTRY}"

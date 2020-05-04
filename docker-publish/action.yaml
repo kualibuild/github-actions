@@ -6,10 +6,12 @@ branding:
 inputs:
   docker_password:
     description: Docker password
-    required: true
+    required: false
+    default: ${{ github.token }}
   docker_username:
     description: Docker username (defaults to GITHUB_ACTOR, which works for docker.pkg.github.com)
     required: false
+    default: ${{ github.actor }}
   docker_image_name:
     description: Docker Image Name (defaults to repo name)
     required: false
