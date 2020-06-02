@@ -1,0 +1,5 @@
+name: 'SlackStream:Error'
+description: 'Update slack that an error occurred'
+runs:
+  using: 'node12'
+  main: 'index.js'

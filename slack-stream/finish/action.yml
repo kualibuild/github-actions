@@ -1,0 +1,5 @@
+name: 'SlackStream:Finish'
+description: 'Update slack that the current step has finished'
+runs:
+  using: 'node12'
+  main: 'index.js'

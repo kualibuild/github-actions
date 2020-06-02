@@ -1,0 +1,9 @@
+name: 'SlackStream:Create'
+description: 'Create an updateable slack message'
+inputs:
+  steps:
+    description: 'A list of | separated steps to be run. # of steps must match # of start/finish step calls. i.e: Test|Build|Deploy'
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'

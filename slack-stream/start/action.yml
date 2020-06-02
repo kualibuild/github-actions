@@ -1,0 +1,5 @@
+name: 'SlackStream:Start'
+description: 'Update slack that the next step has started'
+runs:
+  using: 'node12'
+  main: 'index.js'

@@ -1,0 +1,5 @@
+name: 'SlackStream:Cancel'
+description: 'Update slack that the workflow was cancelled'
+runs:
+  using: 'node12'
+  main: 'index.js'
