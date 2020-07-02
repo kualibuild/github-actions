@@ -28,4 +28,6 @@ jobs:
           dockerfile: 'Dockerfile'
           # Not required, default shown, passed into `docker build`
           build_params: ''
+          # Not required, default shown
+          pull_image_and_stages: 'true'
 ```

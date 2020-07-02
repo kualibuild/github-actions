@@ -31,6 +31,10 @@ inputs:
     description: Build params to send to docker build
     required: false
     default: ''
+  pull_image_and_stages:
+    description: Use cache
+    required: false
+    default: 'true'
 runs:
   using: docker
   image: Dockerfile
