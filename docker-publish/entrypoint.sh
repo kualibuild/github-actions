@@ -31,7 +31,8 @@ SHA_DOCKERNAME="${BASE_DOCKERNAME}:${timestamp}${short_sha}"
 
 BUILD_PARAMS="$BUILD_PARAMS --file ${DOCKER_DOCKERFILE}"
 
-if [ "$INPUT_PULL_IMAGE_AND_STAGES" == true ]; then
+if [ "$INPUT_PULL_IMAGE_AND_STAGES" == "true" ]; then
+  echo "Pulling caches.."
   docker pull --all-tags "${BASE_DOCKERNAME}"-stages 2> /dev/null | tee "$PULL_STAGES_LOG" || true
 fi
 
