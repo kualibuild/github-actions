@@ -1,0 +1,15 @@
+name: Replicate
+description: Replicates this repo to the target repo
+branding:
+  icon: copy
+  color: green
+inputs:
+  token:
+    description: Github Token
+    required: true
+  target_repo:
+    description: The Github repo to replicate to. Should be {org}/{repo}. e.g. "kualibuild-project/workflows-api"
+    required: true
+runs:
+  using: docker
+  image: Dockerfile
