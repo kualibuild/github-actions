@@ -17,10 +17,12 @@ async function * artifacts (octokit) {
 
 async function main () {
   try {
+    core.info('running main')
     const expires = +core.getInput('expires', { required: true })
     const token = core.getInput('token', { required: true })
     const octokit = github.getOctokit(token)
     let artifactCount = 0
+    core.info('fetching artifacts')
     for await (const { id, created_at: createdAt } of artifacts(octokit)) {
       if (Date.now() - new Date(createdAt).getTime() < expires) return
       artifactCount++
@@ -28,8 +30,10 @@ async function main () {
     }
     core.info(`Purged ${artifactCount} artifacts`)
   } catch (error) {
+    core.info('failed')
     core.setFailed(error.message)
   }
 }
 
+core.info('Starting purge action')
 main()
