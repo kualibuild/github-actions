@@ -17,7 +17,7 @@ async function purge (octokit, expires) {
   if (!artifacts.length) return 0
   for (const artifact of artifacts) {
     const { id, created_at: createdAt } = artifact
-    if (Date.now() - new Date(createdAt).getTime() < expires) return
+    if (Date.now() - new Date(createdAt).getTime() < expires) continue
     purgeCount++
     await octokit.actions.deleteArtifact({ owner, repo, artifact_id: id })
   }
