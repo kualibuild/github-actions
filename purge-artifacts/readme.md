@@ -7,9 +7,6 @@ credit: https://github.com/kolpav/purge-artifacts-action
 ## Usage
 
 ```
-env:
-  SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-  SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ID }}
 jobs:
   delete-artifacts:
     runs-on: ubuntu-latest

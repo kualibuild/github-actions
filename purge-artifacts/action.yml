@@ -1,0 +1,13 @@
+name: Purge Artifacts
+description: Purges all artifacts earlier than the specified expire time
+inputs:
+  expires:
+    description: Expiration in ms
+    required: true
+  token:
+    description: Github Token used to authenticate
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: 'node12'
+  main: 'index.js'
