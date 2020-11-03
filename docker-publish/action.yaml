@@ -35,6 +35,10 @@ inputs:
     description: Use cache
     required: false
     default: 'true'
+  push_sha_tag:
+    description: Only push up the branch tag
+    required: false
+    default: ''
 runs:
   using: docker
   image: Dockerfile

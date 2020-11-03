@@ -8,6 +8,7 @@ DOCKER_USERNAME="${INPUT_DOCKER_USERNAME}"
 DOCKER_PASSWORD="${INPUT_DOCKER_PASSWORD}"
 DOCKER_CONTEXT_PATH="${INPUT_DOCKER_CONTEXT_PATH}"
 DOCKER_DOCKERFILE="${INPUT_DOCKERFILE}"
+DOCKER_ONLY_BRANCH_TAG="${INPUT_ONLY_BRANCH_TAG}"
 BRANCH="$(echo ${GITHUB_REF} | sed -e "s/refs\/heads\///g")"
 PULL_STAGES_LOG=pull-stages-output.log
 
@@ -41,7 +42,9 @@ if [ "$MAX_STAGE" ]; then
 fi
 
 docker build ${CACHE_FROM} --tag ${SHA_DOCKERNAME} --tag ${DOCKERNAME} ${INPUT_BUILD_PARAMS} --file ${DOCKER_DOCKERFILE} ${DOCKER_CONTEXT_PATH}
-docker push ${SHA_DOCKERNAME}
+if [ "$INPUT_PUSH_SHA_TAG" == "true" ]; then
+  docker push ${SHA_DOCKERNAME}
+fi
 docker push ${DOCKERNAME}
 
 docker logout
