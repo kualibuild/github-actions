@@ -4,10 +4,11 @@ const axios = require('axios')
 exports.wrap = fn => {
   try {
     fn().catch(error => {
-      core.setFailed(error.message)
+      console.error({ error })
     })
   } catch (error) {
-    core.setFailed(error.message)
+    console.error({ error })
+    // core.setFailed(error.message)
   }
 }
 
@@ -33,6 +34,7 @@ exports.mapMessage = transform => text =>
 
 exports.update = transform => {
   const { SLACK_CHANNEL: channel, SLACK_TS: ts } = process.env
+  if (!ts) return
   return axios
     .get('https://slack.com/api/conversations.history', {
       params: { channel, latest: ts, limit: 1, inclusive: true },
@@ -53,7 +55,4 @@ exports.update = transform => {
         { headers: exports.headers() }
       )
     )
-    .catch(error => {
-      console.error({ error })
-    })
 }
