@@ -53,4 +53,7 @@ exports.update = transform => {
         { headers: exports.headers() }
       )
     )
+    .catch(err => {
+      console.error({ error })
+    })
 }
