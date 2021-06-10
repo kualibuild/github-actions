@@ -22,7 +22,7 @@ fi;
 
 printf ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}
 
-BASE_DOCKERNAME="${DOCKER_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}"
+BASE_DOCKERNAME=$(echo "${DOCKER_REGISTRY}/${GITHUB_REPOSITORY}/${DOCKER_IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
 DOCKERNAME="${BASE_DOCKERNAME}:${BRANCH}"
 timestamp=`date +%Y%m%d%H%M%S`
 short_sha=$(echo "${GITHUB_SHA}" | cut -c1-6)
