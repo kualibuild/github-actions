@@ -1,0 +1,11 @@
+name: 'Repo Control Tools'
+description: 'Setup Repo Control Tools: git + hub'
+author: 'Cameron Larsen @cam3ron2'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/install.sh
+      shell: bash
