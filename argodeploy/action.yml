@@ -15,18 +15,31 @@ inputs:
   cluster_state:
     description: 'If eks=false, Location of kops statefile'
     required: false
+  security_group_id:
+    description: 'The KOPS cluster SG that we will modify for API access'
+    required: false
   region:
     description: 'Region of k8s resources'
     required: true
+  namespace: 
+    description: 'Namespace where k8s resources reside'
+    required: true
+  branch:
+    description: 'Branch in the github repo that should be targeted'
+    required: true
+  
 
 runs:
   using: "composite"
   steps:
-    - run: |
-        export IP_ADDR=$(curl ifconfig.me)
-        aws ec2 authorize-security-group-ingress --region ${1} --group-id ${2} --ip-permissions IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges="[{CidrIp=${IP_ADDR},Description='temp api access for ci'}]"
-      shell: bash
     - run: ${{ github.action_path }}/install.sh ${{ inputs.eks }}
       shell: bash
-    - run: ${{ github.action_path }}/run.sh
+    - run: ${{ github.action_path }}/open_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
+      id: open
+      shell: bash
+    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }}${{ inputs.cluster_state }}
+      shell: bash
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }}
+      shell: bash
+    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ steps.open.outputs.original }}
       shell: bash

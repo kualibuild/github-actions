@@ -51,6 +51,7 @@ if [[ $1 == "false" ]]; then
     echo "ERR: failed to update sg ${4} in region ${3}"
   else
     echo "Updated sg ${4} in region ${3}"
+    echo "::set-output name=original::${4}\n"
   fi
 fi
 
