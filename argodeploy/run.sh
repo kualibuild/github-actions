@@ -11,6 +11,7 @@ if [[ $# -lt 2 ]]; then
 fi
 
 kubectl get ns ${2} &>/dev/null || { echo "ERR: namespace ${2} does not exist"; exit 1; }
+kubectl config set-context --current --namespace=${2}
 
 # ${1} required vars exist
 [[ -z ${SERVICE} ]] && { echo "ERR: SERVICE not set"; exit 1; }

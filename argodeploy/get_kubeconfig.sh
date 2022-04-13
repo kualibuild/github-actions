@@ -25,8 +25,8 @@ export AWS_MAX_ATTEMPTS=10
 if [[ "$1" == "false" ]]; then
   kops export kubecfg --admin --name ${2} --state ${4} || { echo "ERR: kops export kubecfg failed"; exit 1; }
   # configure kubectl 
-  kubectl config set-context platform_verify --namespace=verify --cluster=${2} --user=${2}
-  kubectl config use-context platform_verify
+  kubectl config set-context ${2} --cluster=${2} --user=${2}
+  kubectl config use-context ${2}
 fi
 
 # get kubeconfig for eks
