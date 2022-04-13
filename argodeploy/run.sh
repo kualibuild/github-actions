@@ -52,6 +52,29 @@ fi
 export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${TAG}"| rev | cut -d'/' -f1 | rev)
 echo "Created PR: ${GITHUB_PR}"
 
+# deal with status checks
+count=0
+until [[ $(hub ci-status) == "pending" ]]; do 
+  ((count+=1))
+  [[ ${count} -gt 1 ]] && echo "No status checks required for this PR" && break
+  echo "Waiting to see if status checks are required for this PR"
+  sleep 5
+done
+count=0
+while [[ $(hub ci-status) == "pending" ]]; do 
+  [[ ${count} -eq 0 ]] && echo "Waiting for required status checks to pass before merge"
+  ((count+=1))
+  sleep 1
+done
+case $(hub ci-status) in
+  success)
+    echo "Status checks passed"
+    ;;
+  failure)
+    echo "Required status checks did not pass. For more information, please see $(hub ci-status --verbose | awk '{print $3}')"; exit 1
+    ;;
+esac
+
 # merge PR 
 hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" &>/dev/null
 
