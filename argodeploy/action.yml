@@ -37,7 +37,7 @@ runs:
     - run: ${{ github.action_path }}/open_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
       id: open
       shell: bash
-    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }}${{ inputs.cluster_state }}
+    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.cluster_state }}
       shell: bash
     - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }}
       shell: bash
