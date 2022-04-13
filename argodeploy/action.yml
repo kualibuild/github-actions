@@ -1,0 +1,32 @@
+name: 'ArgoCD Application Deploy'
+description: 'Creates a PR for argo deployments'
+author: 'Cameron Larsen @cam3ron2'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  eks:
+    description: 'If true, will deploy to EKS'
+    required: true
+  cluster_name:
+    description: 'name of the cluster we will deploy to'
+    required: true
+  cluster_state:
+    description: 'If eks=false, Location of kops statefile'
+    required: false
+  region:
+    description: 'Region of k8s resources'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        export IP_ADDR=$(curl ifconfig.me)
+        aws ec2 authorize-security-group-ingress --region ${1} --group-id ${2} --ip-permissions IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges="[{CidrIp=${IP_ADDR},Description='temp api access for ci'}]"
+      shell: bash
+    - run: ${{ github.action_path }}/install.sh ${{ inputs.eks }}
+      shell: bash
+    - run: ${{ github.action_path }}/run.sh
+      shell: bash
