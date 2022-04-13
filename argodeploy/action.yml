@@ -39,7 +39,7 @@ runs:
       shell: bash
     - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.cluster_state }}
       shell: bash
-    - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }}
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }} ${{ inputs.cluster_name }}
       shell: bash
     - run: ${{ github.action_path }}/close_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ steps.open.outputs.original }}
       shell: bash

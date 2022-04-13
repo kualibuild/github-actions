@@ -4,8 +4,8 @@ TAG="$(cat .version)"
 REV=$(kubectl get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # validate inputs
-USAGE="usage: ./run.sh [branch] [namespace]"
-if [[ $# -lt 2 ]]; then
+USAGE="usage: ./run.sh [branch] [namespace] [cluster_name]"
+if [[ $# -lt 3 ]]; then
   echo "${USAGE}"
   exit 1
 fi
@@ -37,7 +37,10 @@ else
   git switch -c verify origin/verify
   git switch ${1}
   git checkout -b update-prod-${TAG}
-  for i in $(ls -d */ | grep -v verify); do
+  for i in $(ls -d */ | grep verify); do
+    git checkout verify -- overlays/${i}
+  done
+  for i in $(ls -d */ | grep ${3}); do
     git checkout verify -- overlays/${i}
   done
   git commit -am "Updated image tag to ${TAG}"
