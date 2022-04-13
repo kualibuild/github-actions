@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 export DEPLOY_START_TIME=$(date +%s)
 TAG="$(cat .version)"
-REV=$(kubectl get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # validate inputs
 USAGE="usage: ./run.sh [branch] [namespace] [cluster_name]"
@@ -12,6 +11,8 @@ fi
 
 kubectl get ns ${2} &>/dev/null || { echo "ERR: namespace ${2} does not exist"; exit 1; }
 kubectl config set-context --current --namespace=${2}
+REV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
+
 
 # ${1} required vars exist
 [[ -z ${SERVICE} ]] && { echo "ERR: SERVICE not set"; exit 1; }
@@ -62,14 +63,14 @@ until [[ $(hub pr list | grep -c update-${1}-${TAG}) == 0 ]]; do
 done
 echo "  * Merged."
 
-NREV=$(kubectl get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
+NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # wait for argo to increment the version on the deploy which signals the start of the rollout
 echo "Waiting for rollout to begin for deployment/${SERVICE}."
 until [[ $((${NREV} - ${REV})) == 1 ]]; do
   echo "  * Rollout has yet to begin for deployment/${SERVICE}. Checking again in 30s"
   sleep 30
-  NREV=$(kubectl get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
+  NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 done
 
 # Delete the branch now that we are done with it
@@ -77,7 +78,7 @@ git switch ${1}
 git branch -d update-${1}-${TAG}
 git push origin --delete update-${1}-${TAG}
 
-kubectl rollout status deploy/$SERVICE
+kubectl -n ${2} rollout status deploy/$SERVICE
 
 # add deploy marker to honeycomb
 [[ ! -z ${HONEYCOMB_KEY} ]] || curl https://api.honeycomb.io/1/markers/builder \
