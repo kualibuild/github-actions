@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 export DEPLOY_START_TIME=$(date +%s)
 TAG="$(cat .version)"
+REV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # validate inputs
 USAGE="usage: ./run.sh [branch] [namespace] [cluster_name]"
@@ -11,8 +12,6 @@ fi
 
 kubectl get ns ${2} &>/dev/null || { echo "ERR: namespace ${2} does not exist"; exit 1; }
 kubectl config set-context --current --namespace=${2}
-REV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
-
 
 # ${1} required vars exist
 [[ -z ${SERVICE} ]] && { echo "ERR: SERVICE not set"; exit 1; }
