@@ -51,7 +51,7 @@ if [[ $1 == "false" ]]; then
     echo "ERR: failed to update sg ${4} in region ${3}"
   else
     echo "Updated sg ${4} in region ${3}"
-    echo "::set-output name=original::${4}\n"
+    echo "::set-output name=original::${4}"
   fi
 fi
 
@@ -80,6 +80,6 @@ if [[ $1 == "true" ]]; then
   else
     echo "Updated cluster config"
     echo ${START}
-    echo "::set-output name=original::${START}\n"
+    echo "::set-output name=original::${START}"
   fi
 fi
