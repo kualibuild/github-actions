@@ -8,7 +8,7 @@ echo "Done!"
 
 echo -n "Installing git@latest..."
 sudo apt-get update -qq
-sudo apt install -y -qq git jq &>/dev/null
+sudo apt install -y -qq git timelimit jq &>/dev/null
 echo "Done!"
 
 VER=$(curl -s https://api.github.com/repos/github/hub/releases/latest | grep tag_name | cut -d '"' -f 4)
