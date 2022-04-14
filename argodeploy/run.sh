@@ -29,7 +29,7 @@ git config user.email "cameron@larsenfam.org"
 if [[ "$1" == "verify" ]]; then
   git switch -c ${1} origin/${1}
   git checkout -b update-${1}-${TAG}
-  sed -i "s/^    newTag: .*$/    newTag: \'${TAG}\'/" ./*/kustomization.yaml
+  sed -i "s/^    newTag: .*$/    newTag: \'${TAG}\'/" ./*/app/kustomization.yaml
   git commit -am "Updated image tag to ${TAG}"
   echo "Pushing to remote: update-${1}-${TAG}"
   git push --set-upstream origin update-${1}-${TAG} &>/dev/null
