@@ -31,7 +31,7 @@ CLUSTER=$(aws eks describe-cluster --name ${1} --region ${2} 2>/dev/null)
 [[ -z ${CLUSTER} ]] && { echo "ERR: Cluster ${1} does not exist in region ${2}"; exit 1; }
 
 echo "Adding API access for ${IP_ADDR}..."
-START=$(echo ${CLUSTER} | jq '.cluster.resourcesVpcConfig.publicAccessCidrs[]' | tr '\n' ',' | sed -e 's/,$//g')
+START=$(echo ${CLUSTER} | jq '.cluster.resourcesVpcConfig.publicAccessCidrs[]' | tr '\n' ',' | sed -e 's/,$//g' -e 's/"/\"/g')
 
 UPDATE_ID=$(aws eks update-cluster-config \
     --region ${2} \
