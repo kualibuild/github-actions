@@ -1,0 +1,29 @@
+name: 'EKS Access'
+description: 'Opens access to EKS for CI'
+author: 'Cameron Larsen @cam3ron2'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  cluster_name:
+    description: 'name of the cluster we will deploy to'
+    required: true
+  region:
+    description: 'Region of k8s resources'
+    required: true
+  
+
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/install.sh
+      shell: bash
+    - run: ${{ github.action_path }}/open_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+      id: open
+      shell: bash
+    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+      shell: bash
+    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ steps.open.outputs.original }}
+      shell: bash
+      if: always()
