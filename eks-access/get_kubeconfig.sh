@@ -17,3 +17,4 @@ export AWS_MAX_ATTEMPTS=10
 
 # get kubeconfig for eks
 aws eks --region ${2} update-kubeconfig --name ${1} --alias ${1} || { echo "ERR: aws eks update-kubeconfig failed"; exit 1; }
+kubectl config set-context --current --namespace=argocd
