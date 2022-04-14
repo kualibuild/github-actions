@@ -6,8 +6,24 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 echo "Done!"
 
-sudo apt-get update -qq
-VER=$(apt-cache madison git | head -n 1 | cut -d'|' -f2 | cut -d'-' -f1 | cut -d':' -f2)
 echo -n "Installing git@latest..."
+sudo apt-get update -qq
 sudo apt install -y -qq git jq &>/dev/null
+echo "Done!"
+
+get_latest_release() {
+  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
+
+VER=$(get_latest_release vmware-tanzu/velero)
+echo -n "Installing Velero@${VER}..."
+curl -o velero.tar.gz -sSLO https://github.com/vmware-tanzu/velero/releases/download/${VER}/velero-${VER}-linux-amd64.tar.gz
+tar -xzf velero.tar.gz -C /usr/local/bin --strip-components=1 velero-${VER}-linux-amd64/velero
+echo "Done!"
+
+echo -n "Installing ArgoCD@latest..."
+curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+chmod +x /usr/local/bin/argocd
 echo "Done!"
