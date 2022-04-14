@@ -49,7 +49,7 @@ else
 fi
 
 # create PR
-export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${TAG}"| rev | cut -d'/' -f1 | rev)
+export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${TAG}"| rev | cut -d'/' -f1 | rev || { echo "ERR: PR not created"; exit 1; })
 echo "Created PR: ${GITHUB_PR}"
 
 # deal with status checks
