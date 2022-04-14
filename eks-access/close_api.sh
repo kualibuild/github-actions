@@ -35,7 +35,7 @@ echo "Removing API access for ${IP_ADDR}..."
 UPDATE_ID=$(aws eks update-cluster-config \
     --region ${2} \
     --name ${1} \
-    --resources-vpc-config endpointPublicAccess=true,publicAccessCidrs="${4}",endpointPrivateAccess=true | jq -r '.update.id')
+    --resources-vpc-config endpointPublicAccess=true,publicAccessCidrs="${3}",endpointPrivateAccess=true | jq -r '.update.id')
 
   STATUS=$(aws eks describe-update --region ${2} --name ${1} --update-id ${UPDATE_ID} | jq -r '.update.status')
 while [[ ${STATUS} == "InProgress" ]]; do

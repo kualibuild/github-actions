@@ -11,6 +11,14 @@ sudo apt-get update -qq
 sudo apt install -y -qq git jq &>/dev/null
 echo "Done!"
 
+VER=$(curl -s https://api.github.com/repos/github/hub/releases/latest | grep tag_name | cut -d '"' -f 4)
+echo -n "Installing Hub@${VER}..."
+wget -q https://github.com/github/hub/releases/download/${VER}/hub-linux-amd64-${VER:1}.tgz
+tar -xvf hub-linux-amd64-${VER:1}.tgz &>/dev/null
+chmod +x ./hub-linux-amd64-${VER:1}/bin/hub
+sudo mv ./hub-linux-amd64-${VER:1}/bin/hub /usr/bin/hub
+echo "Done!"
+
 get_latest_release() {
   curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
     grep '"tag_name":' |                                            # Get tag line
