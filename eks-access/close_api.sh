@@ -8,9 +8,11 @@ if [[ $# -lt 3 ]]; then
   exit 1
 fi
 
+IP_REGEX='^(([0-9]{1,3}.){3}[0-9]{1,3}\/[0-9]{1,2},*){1,}$'
+
 VALID_REGIONS=("us-east-2" "us-east-1" "us-west-1" "us-west-2" "eu-west-1" "eu-west-2" "eu-west-3" "eu-central-1" "ap-south-1" "ap-southeast-1" "ap-southeast-2" "ap-northeast-1" "ap-northeast-2" "ap-northeast-3" "ca-central-1")
 [[ "$1" =~ ^[a-zA-Z][-a-zA-Z0-9]*$ ]] || { echo "ERR: EKS cluster_name must be alphanumeric and start with a letter"; echo "${USAGE}"; exit 1; }
-[[ "$3" =~ ^(([0-9]{1,3}.){3}[0-9]\/[0-9]{1,2},*){1,}$ ]] || { echo "ERR: original_ips should be one or more ip addresses in CIDR notation comma delimited"; echo "${USAGE}"; exit 1; }
+[[ "$3" =~ ${IP_REGEX} ]] || { echo "ERR: original_ips should be one or more ip addresses in CIDR notation quote wrapped and comma delimited"; echo "${USAGE}"; exit 1; }
 [[ "${VALID_REGIONS[@]}" =~ "${2}" ]] || { echo "ERR: region must be one of the following: ${VALID_REGIONS[@]}"; echo "${USAGE}"; exit 1; }
 
 # enable automatic retrylogic in awscli
