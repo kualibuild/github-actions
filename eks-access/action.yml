@@ -22,7 +22,7 @@ inputs:
 outputs:
   original_ips:
     description: 'the original IP access whitelist'
-    value: ${{ steps.open.outputs.original }}
+    value: ${{ steps.open.outputs.original_ips }}
 
 runs:
   using: "composite"
