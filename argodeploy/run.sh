@@ -38,10 +38,10 @@ else
   git switch ${1}
   git checkout -b update-prod-${TAG}
   for i in $(ls -d */ | grep verify); do
-    git checkout verify -- overlays/${i}
+    git checkout verify -- ${i}
   done
   for i in $(ls -d */ | grep ${3}); do
-    git checkout verify -- overlays/${i}
+    git checkout verify -- ${i}
   done
   git commit -am "Updated image tag to ${TAG}"
   echo "Pushing to remote: update-prod-${TAG}"
