@@ -43,3 +43,4 @@ runs:
       shell: bash
     - run: ${{ github.action_path }}/close_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ steps.open.outputs.original }}
       shell: bash
+      if: always()
