@@ -89,7 +89,10 @@ NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations
 
 # wait for argo to increment the version on the deploy which signals the start of the rollout
 echo "Waiting for rollout to begin for deployment/${SERVICE}."
+count=0
 until [[ $((${NREV} - ${REV})) == 1 ]]; do
+  ((count+=0))
+  [[ ${count} -ge 20 ]] && echo "  * Rollout has yet to begin for deployment/${SERVICE}. Aborting."
   echo "  * Rollout has yet to begin for deployment/${SERVICE}. Checking again in 30s"
   sleep 30
   NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
@@ -101,6 +104,8 @@ git branch -d update-${1}-${TAG}
 git push origin --delete update-${1}-${TAG}
 
 kubectl -n ${2} rollout status deploy/$SERVICE
+
+[[ ${count} -ge 20 ]] && exit 1
 
 # add deploy marker to honeycomb
 [[ ! -z ${HONEYCOMB_KEY} ]] || curl https://api.honeycomb.io/1/markers/builder \
