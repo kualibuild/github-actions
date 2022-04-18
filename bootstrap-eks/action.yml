@@ -24,4 +24,4 @@ runs:
       shell: bash
     - run: ${{ github.action_path }}/restore.sh
       shell: bash
-      if: contains(inputs.cluster_name, 'dr-') && contains(inputs.create, 'true)
+      if: contains(inputs.cluster_name, 'dr-') && contains(inputs.create, 'true')
