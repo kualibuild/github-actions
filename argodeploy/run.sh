@@ -58,6 +58,12 @@ else
   fi
 fi
 
+# verify branch exists on remote
+until git branch -r | grep "update-${1}-${TAG}"; do
+  echo "Waiting for remote branch to be created"
+  sleep 5
+done
+
 # create PR
 if [ -n "${changes}" ]; then
   export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${TAG}"| rev | cut -d'/' -f1 | rev || { echo "ERR: PR not created"; exit 1; })
