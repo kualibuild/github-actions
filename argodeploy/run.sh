@@ -28,20 +28,20 @@ git config user.email "cameron@larsenfam.org"
 
 if [[ "$1" == "verify" ]]; then
   git switch -c ${1} origin/${1}
-  git checkout -b update-${1}-${VERSION}
-  sed -i "s/^    newTag: .*$/    newTag: \'${VERSION}\'/" ./*/app/kustomization.yaml
+  git checkout -b update-${1}-${4}
+  sed -i "s/^    newTag: .*$/    newTag: \'${4}\'/" ./*/app/kustomization.yaml
   # check if commit is needed
   git add . -A &>/dev/null
   changes=$(git status -s)
   if [ -n "${changes}" ]; then 
-    git commit -m "Updated image tag to ${VERSION}"
-    echo "Pushing to remote: update-${1}-${VERSION}"
-    git push --set-upstream origin update-${1}-${VERSION} &>/dev/null
+    git commit -m "Updated image tag to ${4}"
+    echo "Pushing to remote: update-${1}-${4}"
+    git push --set-upstream origin update-${1}-${4} &>/dev/null
   fi
 else
   git switch -c verify origin/verify
   git switch ${1}
-  git checkout -b update-prod-${VERSION}
+  git checkout -b update-prod-${4}
   for i in $(ls -d */ | grep verify); do
     git checkout verify -- ${i}
   done
@@ -52,15 +52,15 @@ else
   git add . -A &>/dev/null
   changes=$(git status -s)
   if [ -n "${changes}" ]; then 
-    git commit -am "Updated image tag to ${VERSION}"
-    echo "Pushing to remote: update-prod-${3}-${VERSION}"
-    git push --set-upstream origin update-prod-${VERSION} &>/dev/null
+    git commit -am "Updated image tag to ${4}"
+    echo "Pushing to remote: update-prod-${3}-${4}"
+    git push --set-upstream origin update-prod-${4} &>/dev/null
   fi
 fi
 
 # create PR
 if [ -n "${changes}" ]; then
-  export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${VERSION}"| rev | cut -d'/' -f1 | rev || { echo "ERR: PR not created"; exit 1; })
+  export GITHUB_PR=$(hub pull-request -b ${1} -m "Updated image tag to ${4}"| rev | cut -d'/' -f1 | rev || { echo "ERR: PR not created"; exit 1; })
   echo "Created PR: ${GITHUB_PR}"
 
   # deal with status checks
@@ -90,7 +90,7 @@ if [ -n "${changes}" ]; then
   hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" &>/dev/null
 
   # wait for merge to complete
-  until [[ $(hub pr list | grep -c update-${1}-${VERSION}) == 0 ]]; do
+  until [[ $(hub pr list | grep -c update-${1}-${4}) == 0 ]]; do
     echo "  * waiting for merge to complete. Checking again in 30s"
     sleep 30
   done
@@ -111,8 +111,8 @@ if [ -n "${changes}" ]; then
 
   # Delete the branch now that we are done with it
   git switch ${1}
-  git branch -d update-${1}-${VERSION}
-  git push origin --delete update-${1}-${VERSION}
+  git branch -d update-${1}-${4}
+  git push origin --delete update-${1}-${4}
 
   kubectl -n ${2} rollout status deploy/$SERVICE
 
@@ -123,7 +123,7 @@ if [ -n "${changes}" ]; then
     -X POST \
     -H "Content-Type: application/json" \
     -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}" \
-    -d "{\"message\":\"Deploy ${SERVICE_NAME}-${1} ${VERSION}\", \"type\":\"deploy-${SERVICE_NAME}-${1}\", \"start_time\": ${DEPLOY_START_TIME}, \"end_time\": $(date +%s), \"url\": \"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}\"}"
+    -d "{\"message\":\"Deploy ${SERVICE_NAME}-${1} ${4}\", \"type\":\"deploy-${SERVICE_NAME}-${1}\", \"start_time\": ${DEPLOY_START_TIME}, \"end_time\": $(date +%s), \"url\": \"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}\"}"
 else
   echo "No changes to commit"
 fi
