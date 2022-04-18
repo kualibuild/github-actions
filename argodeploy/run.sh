@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 export DEPLOY_START_TIME=$(date +%s)
-REV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # validate inputs
 USAGE="usage: ./run.sh [branch] [namespace] [cluster_name] [version]"
@@ -96,17 +95,14 @@ if [ -n "${changes}" ]; then
   done
   echo "  * Merged."
 
-  NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
-
   # wait for argo to increment the version on the deploy which signals the start of the rollout
   echo "Waiting for rollout to begin for deployment/${SERVICE}."
   count=0
-  until [[ $((${NREV} - ${REV})) == 1 ]]; do
+  until [[ $(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d':' -f2) == "${4}" ]]; do
     ((count+=0))
-    [[ ${count} -ge 20 ]] && echo "  * Rollout has yet to begin for deployment/${SERVICE}. Aborting."
+    [[ ${count} -ge 10 ]] && echo "  * Rollout has yet to begin for deployment/${SERVICE}. Aborting."
     echo "  * Rollout has yet to begin for deployment/${SERVICE}. Checking again in 30s"
     sleep 30
-    NREV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
   done
 
   # Delete the branch now that we are done with it
@@ -116,7 +112,7 @@ if [ -n "${changes}" ]; then
 
   kubectl -n ${2} rollout status deploy/$SERVICE
 
-  [[ ${count} -ge 20 ]] && exit 1
+  [[ ${count} -ge 10 ]] && exit 1
 
   # add deploy marker to honeycomb
   [[ ! -z ${HONEYCOMB_KEY} ]] || curl https://api.honeycomb.io/1/markers/builder \
