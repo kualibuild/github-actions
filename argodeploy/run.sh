@@ -53,16 +53,10 @@ else
   changes=$(git status -s)
   if [ -n "${changes}" ]; then 
     git commit -am "Updated image tag to ${TAG}"
-    echo "Pushing to remote: update-prod-${TAG}"
+    echo "Pushing to remote: update-prod-${3}-${TAG}"
     git push --set-upstream origin update-prod-${TAG} &>/dev/null
   fi
 fi
-
-# verify branch exists on remote
-until git branch -r | grep "update-${1}-${TAG}"; do
-  echo "Waiting for remote branch to be created"
-  sleep 5
-done
 
 # create PR
 if [ -n "${changes}" ]; then
