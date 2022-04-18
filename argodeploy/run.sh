@@ -41,7 +41,7 @@ if [[ "$1" == "verify" ]]; then
 else
   git switch -c verify origin/verify
   git switch ${1}
-  git checkout -b update-prod-${4}
+  git checkout -b update-prod-${3}-${4}
   for i in $(ls -d */ | grep verify); do
     git checkout verify -- ${i}
   done
@@ -86,7 +86,7 @@ if [ -n "${changes}" ]; then
       ;;
   esac
 
-  # merge PR 
+  # merge PR
   hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" &>/dev/null
 
   # wait for merge to complete
