@@ -3,8 +3,8 @@ export DEPLOY_START_TIME=$(date +%s)
 REV=$(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
 
 # validate inputs
-USAGE="usage: ./run.sh [branch] [namespace] [cluster_name]"
-if [[ $# -lt 3 ]]; then
+USAGE="usage: ./run.sh [branch] [namespace] [cluster_name] [version]"
+if [[ $# -lt 4 ]]; then
   echo "${USAGE}"
   exit 1
 fi
@@ -14,7 +14,6 @@ kubectl config set-context --current --namespace=${2}
 
 # ${1} required vars exist
 [[ -z ${SERVICE} ]] && { echo "ERR: SERVICE not set"; exit 1; }
-[[ -z ${VERSION} ]] && { echo "ERR: VERSION not set"; exit 1; }
 [[ -z ${SERVICE_NAME} ]] && { echo "ERR: SERVICE not set"; exit 1; }
 [[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; }
 [[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }
