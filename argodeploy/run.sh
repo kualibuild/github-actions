@@ -15,6 +15,7 @@ kubectl config set-context --current --namespace=${2}
 
 # ${1} required vars exist
 [[ -z ${SERVICE} ]] && { echo "ERR: SERVICE not set"; exit 1; }
+[[ -z ${SERVICE_NAME} ]] && { echo "ERR: SERVICE not set"; exit 1; }
 [[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; }
 [[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }
 [[ -z ${GITHUB_USER} ]] && { echo "ERR: GITHUB_USER not set"; exit 1; }
@@ -123,7 +124,7 @@ if [ -n "${changes}" ]; then
     -X POST \
     -H "Content-Type: application/json" \
     -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}" \
-    -d "{\"message\":\"Deploy ${SERVICE_NAME} ${TAG}\", \"type\":\"deploy-${SERVICE_NAME}\", \"start_time\": ${DEPLOY_START_TIME}, \"end_time\": $(date +%s), \"url\": \"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}\"}"
+    -d "{\"message\":\"Deploy ${SERVICE_NAME}-${1} ${TAG}\", \"type\":\"deploy-${SERVICE_NAME}-${1}\", \"start_time\": ${DEPLOY_START_TIME}, \"end_time\": $(date +%s), \"url\": \"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}\"}"
 else
   echo "No changes to commit"
 fi
