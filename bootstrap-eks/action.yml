@@ -9,6 +9,9 @@ inputs:
   cluster_name:
     description: 'the name of the cluster'
     required: true
+  create:
+    description: 'whether or not we are creating resources'
+    required: true
 
 
 runs:
@@ -21,4 +24,4 @@ runs:
       shell: bash
     - run: ${{ github.action_path }}/restore.sh
       shell: bash
-      if: contains(inputs.cluster_name, 'dr-')
+      if: contains(inputs.cluster_name, 'dr-') && contains(inputs.create, 'true)
