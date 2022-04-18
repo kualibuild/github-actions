@@ -1,0 +1,24 @@
+name: 'Bootstrap EKS'
+description: 'Bootstrap EKS clusters'
+author: 'Cameron Larsen @cam3ron2'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  cluster_name:
+    description: 'the name of the cluster'
+    required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/clone_repo.sh
+      shell: bash
+    - run: ${{ github.action_path }}/k8s-apps/strapper.sh ${{ inputs.cluster_name }}
+      working-directory: ${{ github.action_path }}/k8s-apps/
+      shell: bash
+    - run: ${{ github.action_path }}/restore.sh
+      shell: bash
+      if: contains(inputs.cluster_name, 'dr-')
