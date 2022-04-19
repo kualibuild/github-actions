@@ -91,6 +91,7 @@ if [ -n "${changes}" ]; then
   # wait for merge to complete
   until [[ $(hub pr list | grep -c "#${GITHUB_PR}") == 0 ]]; do
     echo "  * PR still open, waiting for merge to complete. Checking again in 30s"
+    hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" &>/dev/null
     sleep 30
   done
   echo "  * PR #${GITHUB_PR} Merged."
