@@ -59,7 +59,7 @@ fi
 
 # create PR
 if [ -n "${changes}" ]; then
-  export GITHUB_PR=$(hub pull-request -p -b ${1} -m "Updated image tag to ${4}"| rev | cut -d'/' -f1 | rev || { echo "ERR: PR not created"; exit 1; })
+  export GITHUB_PR=$(hub pull-request -p -b ${1} -m "Updated image tag to ${4}" | grep github.com | rev | cut -d'/' -f1 | rev)
   echo "Created PR: ${GITHUB_PR}"
 
   # deal with status checks
