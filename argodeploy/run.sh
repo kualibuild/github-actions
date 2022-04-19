@@ -27,20 +27,20 @@ git config user.email "cameron@larsenfam.org"
 
 if [[ "$1" == "verify" ]]; then
   git switch -c ${1} origin/${1}
-  git checkout -b update-${1}-${4}
+  git checkout -b update-${1}-${3}-${4}
   sed -i "s/^    newTag: .*$/    newTag: \'${4}\'/" ./*/app/kustomization.yaml
   # check if commit is needed
   git add . -A &>/dev/null
   changes=$(git status -s)
   if [ -n "${changes}" ]; then 
     git commit -m "Updated image tag to ${4}"
-    echo "Pushing to remote: update-${1}-${4}"
-    git push --set-upstream origin update-${1}-${4} &>/dev/null
+    echo "Pushing to remote: update-${1}-${3}-${4}"
+    git push --set-upstream origin update-${1}-${3}-${4} &>/dev/null
   fi
 else
   git switch -c verify origin/verify
   git switch ${1}
-  git checkout -b update-prod-${3}-${4}
+  git checkout -b update-${1}-${3}-${4}
   for i in $(ls -d */ | grep verify); do
     git checkout verify -- ${i}
   done
@@ -52,8 +52,8 @@ else
   changes=$(git status -s)
   if [ -n "${changes}" ]; then 
     git commit -am "Updated image tag to ${4}"
-    echo "Pushing to remote: update-prod-${3}-${4}"
-    git push --set-upstream origin update-prod-${4} &>/dev/null
+    echo "Pushing to remote: update-${1}-${3}-${4}"
+    git push --set-upstream origin update-${1}-${3}-${4} &>/dev/null
   fi
 fi
 
@@ -108,8 +108,8 @@ if [ -n "${changes}" ]; then
 
   # Delete the branch now that we are done with it
   git switch ${1}
-  git branch -d update-${1}-${4}
-  git push origin --delete update-${1}-${4}
+  git branch -d update-${1}-${3}-${4}
+  git push origin --delete update-${1}-${3}-${4}
 
   kubectl -n ${2} rollout status deploy/$SERVICE
 
