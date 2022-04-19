@@ -86,14 +86,14 @@ if [ -n "${changes}" ]; then
   esac
 
   # merge PR
-  hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" &>/dev/null
+  echo "  * $(hub api -XPUT "repos/${GITHUB_REPO}/pulls/${GITHUB_PR}/merge" | jq  -r '.message')"
 
   # wait for merge to complete
-  until [[ $(hub pr list | grep -c update-${1}-${4}) == 0 ]]; do
-    echo "  * waiting for merge to complete. Checking again in 30s"
+  until [[ $(hub pr list | grep -c "#${GITHUB_PR}") == 0 ]]; do
+    echo "  * PR still open, waiting for merge to complete. Checking again in 30s"
     sleep 30
   done
-  echo "  * Merged."
+  echo "  * PR #${GITHUB_PR} Merged."
 
   # wait for argo to increment the version on the deploy which signals the start of the rollout
   echo "Waiting for rollout to begin for deployment/${SERVICE}."
