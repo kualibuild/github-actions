@@ -96,6 +96,11 @@ if [ -n "${changes}" ]; then
   done
   echo "  * PR #${GITHUB_PR} Merged."
 
+  # sync argo
+  kubectl config set-context --current --namespace=argocd
+  argocd app sync ${SERVICE} &>/dev/null
+  kubectl config set-context --current --namespace=${2}
+
   # wait for argo to increment the version on the deploy which signals the start of the rollout
   echo "Waiting for rollout to begin for deployment/${SERVICE}."
   count=0

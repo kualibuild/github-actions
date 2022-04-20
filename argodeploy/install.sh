@@ -22,8 +22,14 @@ tar -xvf hub-linux-amd64-${VER:1}.tgz &>/dev/null
 chmod +x ./hub-linux-amd64-${VER:1}/bin/hub
 sudo mv ./hub-linux-amd64-${VER:1}/bin/hub /usr/bin/hub
 echo "Done!"
+
 sudo apt-get update -qq
 VER=$(apt-cache madison git | head -n 1 | cut -d'|' -f2 | cut -d'-' -f1 | cut -d':' -f2)
 echo -n "Installing git@latest..."
 sudo apt install -y -qq git jq &>/dev/null
+echo "Done!"
+
+echo -n "Installing ArgoCD@latest..."
+curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+chmod +x /usr/local/bin/argocd
 echo "Done!"
