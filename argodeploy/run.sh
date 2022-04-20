@@ -104,7 +104,7 @@ if [ -n "${changes}" ]; then
   # wait for argo to increment the version on the deploy which signals the start of the rollout
   echo "Waiting for rollout to begin for deployment/${SERVICE}."
   count=0
-  until [[ $(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d':' -f2) == "${4}" ]]; do
+  until [[ $(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.spec.template.spec.containers[*].image}' | grep -o ${4}) == "${4}" ]]; do
     ((count+=0))
     [[ ${count} -ge 10 ]] && echo "  * Rollout has yet to begin for deployment/${SERVICE}. Aborting."
     echo "  * Rollout has yet to begin for deployment/${SERVICE}. Checking again in 30s"
