@@ -1,5 +1,5 @@
 name: 'EKS Access'
-description: 'Opens access to EKS for CI'
+description: 'Manages access to EKS for CI'
 author: 'Cameron Larsen @cam3ron2'
 branding:
   icon: 'terminal'
@@ -15,14 +15,6 @@ inputs:
   region:
     description: 'Region of k8s resources'
     required: true
-  original_ips:
-    description: 'the original IP access whitelist'
-    required: false
-
-outputs:
-  original_ips:
-    description: 'the original IP access whitelist'
-    value: ${{ steps.open.outputs.original_ips }}
 
 runs:
   using: "composite"
@@ -37,6 +29,6 @@ runs:
     - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
       shell: bash
       if: inputs.action == 'open'
-    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.original_ips }}
+    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
       shell: bash
       if: inputs.action == 'close'

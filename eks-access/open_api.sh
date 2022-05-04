@@ -49,6 +49,4 @@ if [[ ${STATUS} != "Successful" ]]; then
   echo "Failed to update cluster config"
 else
   echo "Updated cluster config"
-  echo ${START}
-  echo "::set-output name=original_ips::${START}"
 fi
