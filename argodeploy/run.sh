@@ -8,6 +8,7 @@ if [[ $# -lt 4 ]]; then
   exit 1
 fi
 
+kubectl version
 kubectl get ns ${2} &>/dev/null || { echo "ERR: namespace ${2} does not exist"; exit 1; }
 kubectl config set-context --current --namespace=${2}
 
