@@ -29,7 +29,7 @@ git config user.email "cameron@larsenfam.org"
 if [[ "$1" == "verify" ]]; then
   git switch -c ${1} origin/${1}
   git checkout -b update-${1}-${3}-${4}
-  sed -i "s/^    newTag: .*$/    newTag: \'${4}\'/" ./*/app/kustomization.yaml
+  sed -i "s/^    newTag: .*$/    newTag: \'${4}\'/" ./*/*/kustomization.yaml
   # check if commit is needed
   git add . -A &>/dev/null
   changes=$(git status -s)
