@@ -103,13 +103,16 @@ if [ -n "${changes}" ]; then
   kubectl config set-context --current --namespace=${2}
 
   # wait for argo to increment the version on the deploy which signals the start of the rollout
-  echo "Waiting for rollout to begin for deployment/${SERVICE}."
-  count=0
-  until [[ $(kubectl -n ${2} get deploy ${SERVICE} -o jsonpath='{.spec.template.spec.containers[*].image}' | grep -o ${4}) == "${4}" ]]; do
-    ((count+=0))
-    [[ ${count} -ge 10 ]] && echo "  * Rollout has yet to begin for deployment/${SERVICE}. Aborting."
-    echo "  * Rollout has yet to begin for deployment/${SERVICE}. Checking again in 30s"
-    sleep 30
+  targets=$(kubectl -n ${2} get deploy | grep ${SERVICE} | awk '{print $1}')
+  for tar in ${targets}; do
+    echo "Waiting for rollout to begin for deployment/${tar}."
+    count=0
+    until [[ $(kubectl -n ${2} get deploy ${tar} -o jsonpath='{.spec.template.spec.containers[*].image}' | grep -o ${4}) == "${4}" ]]; do
+      ((count+=0))
+      [[ ${count} -ge 10 ]] && echo "  * Rollout has yet to begin for deployment/${tar}. Aborting."
+      echo "  * Rollout has yet to begin for deployment/${tar}. Checking again in 30s"
+      sleep 30
+    done
   done
 
   # Delete the branch now that we are done with it
