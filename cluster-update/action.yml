@@ -1,0 +1,27 @@
+name: 'EKS managed NodeGroup AMI Updater'
+description: 'Updates the AMI used by managed EKS NodeGroups'
+author: 'Cameron Larsen @cam3ron2'
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  cluster_name:
+    description: 'name of the cluster we will be updating'
+    required: true
+  region:
+    description: 'Region of k8s resources'
+    required: true
+  
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-go@v3
+      with: 
+        go-version: '1.18.1'
+    - run: ${{ github.action_path }}/setup.sh
+      shell: bash
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+      id: open
+      shell: bash
