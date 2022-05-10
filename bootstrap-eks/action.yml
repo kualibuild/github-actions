@@ -26,6 +26,7 @@ runs:
         action: 'open'
         cluster_name: ${{ inputs.cluster_name }}
         region: ${{ inputs.region }}
+      if: ${{ inputs.create == 'true' }}
     - run: ${{ github.action_path }}/clone_repo.sh
       shell: bash
       if: ${{ inputs.create == 'true' }}
@@ -42,3 +43,4 @@ runs:
         action: 'close'
         cluster_name: ${{ inputs.cluster_name }}
         region: ${{ inputs.region }}
+      if: ${{ inputs.create == 'true' }} && always()
