@@ -1,32 +1,21 @@
-name: 'Bootstrap EKS'
-description: 'Bootstrap EKS clusters'
-author: 'Cameron Larsen @cam3ron2'
+name: "Bootstrap EKS"
+description: "Bootstrap EKS clusters"
+author: "Cameron Larsen @cam3ron2"
 branding:
-  icon: 'terminal'
-  color: 'blue'
+  icon: "terminal"
+  color: "blue"
 
 inputs:
   cluster_name:
-    description: 'the name of the cluster'
+    description: "the name of the cluster"
     required: true
   create:
-    description: 'whether or not we are creating resources'
+    description: "whether or not we are creating resources"
     required: true
-  region:
-    description: 'the region the cluster resides in'
-    required: true
-
 
 runs:
   using: "composite"
   steps:
-    - name: Open API Access
-      uses: kualibuild/github-actions/eks-access@master
-      with:
-        action: 'open'
-        cluster_name: ${{ inputs.cluster_name }}
-        region: ${{ inputs.region }}
-      if: ${{ inputs.create == 'true' }}
     - run: ${{ github.action_path }}/clone_repo.sh
       shell: bash
       if: ${{ inputs.create == 'true' }}
@@ -37,10 +26,3 @@ runs:
     - run: ${{ github.action_path }}/restore.sh
       shell: bash
       if: contains(inputs.cluster_name, 'dr-') && contains(inputs.create, 'true')
-    - name: Close API Access
-      uses: kualibuild/github-actions/eks-access@master
-      with:
-        action: 'close'
-        cluster_name: ${{ inputs.cluster_name }}
-        region: ${{ inputs.region }}
-      if: ${{ inputs.create == 'true' }} && always()
