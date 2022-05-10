@@ -28,30 +28,34 @@ fi
 IP_ADDR=$(curl -s ifconfig.me)
 
 # validate cluster exists in region
-if [[ ${3} == "false" ]]; then
-  CLUSTER=$(aws eks describe-cluster --name ${1} --region ${2} 2>/dev/null)
-  [[ -z ${CLUSTER} ]] && { echo "ERR: Cluster ${1} does not exist in region ${2}"; exit 1; }
-fi
-
-echo "Adding API access for ${IP_ADDR}..."
-START=$(echo ${CLUSTER} | jq '.cluster.resourcesVpcConfig.publicAccessCidrs[]' | tr '\n' ',' | sed -e 's/,$//g' -e 's/\"//g')
-
-UPDATE_ID=$(aws eks update-cluster-config \
-    --region ${2} \
-    --name ${1} \
-    --resources-vpc-config endpointPublicAccess=true,publicAccessCidrs="${START},${IP_ADDR}/32",endpointPrivateAccess=true 2>/dev/null | jq -r '.update.id')
-
-STATUS=$(aws eks describe-update --region ${2} --name ${1} --update-id ${UPDATE_ID} 2>/dev/null | jq -r '.update.status')
-while [[ ${STATUS} == "InProgress" ]]; do
-  echo "Waiting for update to complete..."
-  sleep 5
-  STATUS=$(aws eks describe-update --region ${2} --name ${1} --update-id ${UPDATE_ID} 2>/dev/null | jq -r '.update.status')
-done
-
-if [[ ${STATUS} != "Successful" ]]; then
-  echo "Failed to update cluster config"
+CLUSTER=$(aws eks describe-cluster --name ${1} --region ${2} 2>/dev/null)
+if [[ -z ${CLUSTER} ]]; then 
+  echo "ERR: Cluster ${1} does not exist in region ${2}"
+  if [[ ${3} == "false" ]]; then 
+    exit 1
+  else
+    echo "WARN: Exiting success because softfail is enabled"
+    exit 0
+  fi
 else
-  echo "Updated cluster config"
-fi
+  echo "Adding API access for ${IP_ADDR}..."
+  START=$(echo ${CLUSTER} | jq '.cluster.resourcesVpcConfig.publicAccessCidrs[]' | tr '\n' ',' | sed -e 's/,$//g' -e 's/\"//g')
 
-[[ ${3} == "true" ]] && { echo "WARN: Exiting success because softfail is enabled"; exit 0; }
+  UPDATE_ID=$(aws eks update-cluster-config \
+      --region ${2} \
+      --name ${1} \
+      --resources-vpc-config endpointPublicAccess=true,publicAccessCidrs="${START},${IP_ADDR}/32",endpointPrivateAccess=true 2>/dev/null | jq -r '.update.id')
+
+  STATUS=$(aws eks describe-update --region ${2} --name ${1} --update-id ${UPDATE_ID} 2>/dev/null | jq -r '.update.status')
+  while [[ ${STATUS} == "InProgress" ]]; do
+    echo "Waiting for update to complete..."
+    sleep 5
+    STATUS=$(aws eks describe-update --region ${2} --name ${1} --update-id ${UPDATE_ID} 2>/dev/null | jq -r '.update.status')
+  done
+
+  if [[ ${STATUS} != "Successful" ]]; then
+    echo "Failed to update cluster config"
+  else
+    echo "Updated cluster config"
+  fi
+fi
