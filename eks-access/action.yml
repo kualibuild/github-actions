@@ -1,20 +1,24 @@
-name: 'EKS Access'
-description: 'Manages access to EKS for CI'
-author: 'Cameron Larsen @cam3ron2'
+name: "EKS Access"
+description: "Manages access to EKS for CI"
+author: "Cameron Larsen @cam3ron2"
 branding:
-  icon: 'terminal'
-  color: 'blue'
+  icon: "terminal"
+  color: "blue"
 
 inputs:
   action:
     description: '"open" or "close"'
     required: true
   cluster_name:
-    description: 'name of the cluster we will deploy to'
+    description: "name of the cluster we will deploy to"
     required: true
   region:
-    description: 'Region of k8s resources'
+    description: "Region of k8s resources"
     required: true
+  softfail:
+    description: "whether or not to hard fail the action if the cluster is not found"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -22,13 +26,13 @@ runs:
     - run: ${{ github.action_path }}/install.sh
       shell: bash
       if: inputs.action == 'open'
-    - run: ${{ github.action_path }}/open_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+    - run: ${{ github.action_path }}/open_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
       id: open
       shell: bash
       if: inputs.action == 'open'
     - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
       shell: bash
       if: inputs.action == 'open'
-    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
       shell: bash
       if: inputs.action == 'close'
