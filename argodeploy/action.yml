@@ -8,7 +8,8 @@ branding:
 inputs:
   eks:
     description: 'If true, will deploy to EKS'
-    required: true
+    required: false
+    default: "true"
   cluster_name:
     description: 'name of the cluster we will deploy to'
     required: true
