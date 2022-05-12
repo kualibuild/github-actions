@@ -27,7 +27,5 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: ${{ github.action_path }}/install.sh
-      shell: bash
     - run: ${{ github.action_path }}/run.sh ${{ inputs.path }} ${{ inputs.version }} ${{ inputs.skiptests }} ${{ inputs.softfail }}
       shell: bash
