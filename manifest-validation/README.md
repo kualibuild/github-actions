@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: "Validate Overlay Manifests"
-        uses: kualibuild/github-actions/argodeploy@master
+        uses: kualibuild/github-actions/manifest-validation@master
         with:
           path: "overlays/"
 ```
