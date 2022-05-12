@@ -1,0 +1,33 @@
+name: "Smoketest"
+description: "Deploys smoke pod and runs any defined tests"
+author: "Cameron Larsen @cam3ron2"
+branding:
+  icon: "terminal"
+  color: "blue"
+
+inputs:
+  cluster_name:
+    description: "name of the cluster we will be updating"
+    required: true
+  region:
+    description: "Region of k8s resources"
+    required: true
+  path:
+    description: "Relative path to the smoke kustomize directory in the destination repo, ex: overlays/us-west-2/smoke/"
+    required: true
+  skiptests:
+    description: "Skip tests"
+    required: false
+    default: "false"
+  softfail:
+    description: "whether or not to hard fail the action if tests fail"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/install.sh
+      shell: bash
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.path }} ${{ inputs.version }} ${{ inputs.skiptests }} ${{ inputs.softfail }}
+      shell: bash
