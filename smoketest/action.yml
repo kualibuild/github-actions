@@ -15,6 +15,9 @@ inputs:
   path:
     description: "Relative path to the smoke kustomize directory in the destination repo, ex: overlays/us-west-2/smoke/"
     required: true
+  version: 
+    description: "Version of the docker image to deploy"
+    required: true
   skiptests:
     description: "Skip tests"
     required: false
