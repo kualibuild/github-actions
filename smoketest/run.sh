@@ -11,7 +11,15 @@ ver=${2}
 skip=${3}
 soft=${4}
 bool=("true" "false")
-[[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; } || cd $(echo ${GITHUB_REPO} | cut -d'/' -f2)
+[[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; } || rpath=$(echo ${GITHUB_REPO} | cut -d'/' -f2)
+[[ -d ${rpath} ]] && { cd ${rpath}; } || { echo "ERR: failed to clone repo"; exit 1; }
+[[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }
+[[ -z ${GITHUB_USER} ]] && { echo "ERR: GITHUB_USER not set"; exit 1; }
+[[ -z ${ver} ]] && { echo "ERR: version not set"; exit 1; }
+[[ -z ${skip} ]] && { echo "ERR: skiptests not set"; exit 1; }
+[[ -z ${soft} ]] && { echo "ERR: softfail not set"; exit 1; }
+[[ ${skip} != ${bool[0]} && ${skip} != ${bool[1]} ]] && { echo "ERR: skiptests must be true or false"; exit 1; }
+[[ ${soft} != ${bool[0]} && ${soft} != ${bool[1]} ]] && { echo "ERR: softfail must be true or false"; exit 1; }
 # [[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }
 # [[ -z ${GITHUB_USER} ]] && { echo "ERR: GITHUB_USER not set"; exit 1; }
 [[ ! -d ${1} ]] && { echo "ERR: path ${1} does not exist"; exit 1; } || { path=${1}; }
