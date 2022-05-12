@@ -22,6 +22,7 @@ bool=("true" "false")
 [[ ! ${bool[@]} =~ ${skip} ]] && { echo "ERR: skiptests must be 'true' or 'false'"; exit 1; }
 [[ ! ${bool[@]} =~ ${soft} ]] && { echo "ERR: softfail must be 'true' or 'false'"; exit 1; }
 cd $(echo ${GITHUB_REPO} | cut -d'/' -f2)/
+echo $(pwd)
 # update tag
 gsed -i "s/^    newTag: .*$/    newTag: \'${ver}\'/" ${path}/${fname}
 
