@@ -11,7 +11,7 @@ ver=${2}
 skip=${3}
 soft=${4}
 bool=("true" "false")
-# [[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; }
+[[ -z ${GITHUB_REPO} ]] && { echo "ERR: GITHUB_REPO not set"; exit 1; }
 # [[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }
 # [[ -z ${GITHUB_USER} ]] && { echo "ERR: GITHUB_USER not set"; exit 1; }
 [[ ! -d ${1} ]] && { echo "ERR: path ${1} does not exist"; exit 1; } || { path=${1}; }
@@ -21,7 +21,7 @@ bool=("true" "false")
 [[ -z ${fname} ]] && { echo "ERR: unable to find one of 'kustomization.yaml', 'kustomization.yml' or 'Kustomization' in directory `${1}`"; exit 1; }
 [[ ! ${bool[@]} =~ ${skip} ]] && { echo "ERR: skiptests must be 'true' or 'false'"; exit 1; }
 [[ ! ${bool[@]} =~ ${soft} ]] && { echo "ERR: softfail must be 'true' or 'false'"; exit 1; }
-
+cd $(echo ${GITHUB_REPO} | cut -d'/' -f2)/
 # update tag
 gsed -i "s/^    newTag: .*$/    newTag: \'${ver}\'/" ${path}/${fname}
 
