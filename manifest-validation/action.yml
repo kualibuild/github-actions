@@ -6,11 +6,8 @@ branding:
   color: "blue"
 
 inputs:
-  base:
-    description: "relative path to base directory"
-    required: true
-  overlay:
-    description: "relative path to overlay directory"
+  path:
+    description: "relative path to manifest directory"
     required: true
 
 runs:
@@ -22,15 +19,9 @@ runs:
           kustomize: "4.5.2"
           kubeval: "0.16.1"
           conftest: "0.30.0"
-    - run: ${{ github.action_path }}/validate_manifests.sh ${{ inputs.base }}
+    - run: ${{ github.action_path }}/validate_manifests.sh ${{ inputs.path }}
       shell: bash
-      id: validate_manifests_base
-    - run: ${{ github.action_path }}/validate_kustomize.sh ${{ inputs.base }}
+      id: validate_manifests
+    - run: ${{ github.action_path }}/validate_kustomize.sh ${{ inputs.path }}
       shell: bash
-      id: validate_kustomize_base
-    - run: ${{ github.action_path }}/validate_manifests.sh ${{ inputs.overlay }}
-      shell: bash
-      id: validate_manifests_overlay
-    - run: ${{ github.action_path }}/validate_kustomize.sh ${{ inputs.overlay }}
-      shell: bash
-      id: validate_kustomize_overlay
+      id: validate_kustomize
