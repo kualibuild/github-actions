@@ -27,5 +27,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - run: ${{ github.action_path }}/clone.sh
+      shell: bash
     - run: ${{ github.action_path }}/run.sh ${{ inputs.path }} ${{ inputs.version }} ${{ inputs.skiptests }} ${{ inputs.softfail }}
       shell: bash
+    - run: ${{ github.action_path }}/clean.sh
+      shell: bash
+      if: always()
