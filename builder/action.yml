@@ -59,7 +59,6 @@ runs:
         aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${{ inputs.registry }}
     - name: Building + Pushing Docker Image
       shell: bash
-      working-directory: ${{ inputs.dockerfile_path }}
       run: |
         ARGS=""
         if [ ! -z "${{ inputs.build_args }}" ]; then
@@ -68,7 +67,7 @@ runs:
         export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
         echo "Building ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }}"
-        docker buildx build . -f ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }} \
+        docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} ${ARGS} \
           --cache-from=type=gha \
           --cache-to=type=gha,mode=max \
