@@ -17,6 +17,14 @@ inputs:
     description: "a comma separated list of cpu architectures that the image will be built for. Example: 'linux/arm64,linux/amd64'"
     required: false
     default: "linux/arm64,linux/amd64"
+  dockerfile_path:
+    description: "the path to the dockerfile to use for building the image"
+    required: false
+    default: "."
+  dockerfile_name:
+    description: "the name of the dockerfile to use for building the image"
+    required: false
+    default: "Dockerfile"
 
 runs:
   using: "composite"
@@ -33,16 +41,16 @@ runs:
     - name: Login to ECR
       shell: bash
       run: |
-        region=$(echo ${ inputs.registry } | cut -d'.' -f4)
-        aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ inputs.registry }
+        region=$(echo ${{ inputs.registry }} | cut -d'.' -f4)
+        aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${{ inputs.registry }}
     - name: Building + Pushing Docker Image
       shell: bash
       run: |
-        export REPOSITORY=${ inputs.registry }/${ inputs.repository }
+        export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
         docker pull ${REPOSITORY}:latest
-        docker buildx build . -f Dockerfile \
-          --platform ${ inputs.platforms } \
+        docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
+          --platform ${{ inputs.platforms }} \
           --cache-from ${REPOSITORY}:latest \
           --tag ${REPOSITORY}:${TAG} \
           --tag ${REPOSITORY}:${{ steps.version.outputs.version }} \

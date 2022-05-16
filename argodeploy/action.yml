@@ -46,7 +46,7 @@ runs:
       shell: bash
     - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.cluster_state }}
       shell: bash
-    - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }} ${{ inputs.cluster_name }} ${{ inputs.version }}
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.branch }} ${{ inputs.namespace }} ${{ inputs.cluster_name }} ${{ inputs.version }} ${{ inputs.noverify }}
       shell: bash
     - run: ${{ github.action_path }}/close_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
       shell: bash
