@@ -158,7 +158,7 @@ clone ${GITHUB_REPO} ${REPOSTRING}
 
 if [[ "${1}" == "verify" || "${noverify}" == "true" ]]; then
   mkbranch ${1} ${2} ${4}
-elif [[ ${noverify} =="false" ]]; then
+elif [[ ${noverify} == "false" ]]; then
   forkbranch ${1} ${2} ${4}
 else
   echo "WARN: set to 'true' but target branch is set to verify. Unable to proceed."
