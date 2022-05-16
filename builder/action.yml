@@ -34,6 +34,13 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Expose GitHub Runtime
+      uses: crazy-max/ghaction-github-runtime@v1
+    - name: Env
+      shell: bash
+      run: |
+        # ACTIONS_RUNTIME_TOKEN, ACTIONS_RUNTIME_URL should be exposed
+        env|sort
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -56,8 +63,8 @@ runs:
         docker pull ${REPOSITORY}:latest
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} \
-          --cache-from=type=registry,ref=${REPOSITORY}:latest \
-          --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+          --cache-from=type=gha \
+          --cache-to=type=gha,mode=max \
           --tag ${REPOSITORY}:${TAG} \
           --tag ${REPOSITORY}:${{ steps.version.outputs.version }} \
           --tag ${REPOSITORY}:latest \
