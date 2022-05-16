@@ -153,7 +153,7 @@ cleanup() {
   name="update-${branch}-${cluster}-${tag}"
   git switch ${branch}
   git branch -d ${tag}
-  git push origin --delete ${tag}
+  git push origin --delete ${name}
 }
 
 # clone repo and edit files
