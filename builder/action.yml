@@ -62,6 +62,7 @@ runs:
         docker pull ${REPOSITORY}:latest
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} \
+          --load \
           --cache-from=type=gha \
           --cache-to=type=gha,mode=max \
           --tag ${REPOSITORY}:${TAG} \
