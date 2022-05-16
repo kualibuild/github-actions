@@ -20,7 +20,7 @@ inputs:
   dockerfile_path:
     description: "the path to the dockerfile to use for building the image"
     required: false
-    default: "."
+    default: "./"
   dockerfile_name:
     description: "the name of the dockerfile to use for building the image"
     required: false
@@ -66,8 +66,8 @@ runs:
         fi
         export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
-        echo "Building ${{ inputs.dockerfile_path }}/${{ inputs.dockerfile_name }}"
-        docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
+        echo "Building ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }}"
+        docker buildx build . -f ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} ${ARGS} \
           --cache-from=type=gha \
           --cache-to=type=gha,mode=max \
