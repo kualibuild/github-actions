@@ -26,6 +26,11 @@ inputs:
     required: false
     default: "Dockerfile"
 
+outputs:
+  version:
+    description: "the version of the image that was built"
+    value: "${{ steps.version.outputs.version }}"
+
 runs:
   using: "composite"
   steps:
