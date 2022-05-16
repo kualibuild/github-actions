@@ -30,7 +30,7 @@ bool=("true" "false")
 [[ ! ${bool[@]} =~ ${skip} ]] && { echo "ERR: skiptests must be 'true' or 'false'"; exit 1; }
 [[ ! ${bool[@]} =~ ${soft} ]] && { echo "ERR: softfail must be 'true' or 'false'"; exit 1; }
 # update tag
-gsed -i "s/^    newTag: .*$/    newTag: \'${ver}\'/" ${path}/${fname}
+sed -i "s/^    newTag: .*$/    newTag: \'${ver}\'/" ${path}/${fname}
 
 raw=$(kustomize build ${path})
 resources=$(echo "${raw}" | kubectl apply --dry-run=client -f - | cut -d' ' -f1)
