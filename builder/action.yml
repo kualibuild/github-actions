@@ -51,7 +51,8 @@ runs:
         docker pull ${REPOSITORY}:latest
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} \
-          --cache-from ${REPOSITORY}:latest \
+          --cache-from=type=registry,ref=${REPOSITORY}:latest \
+          --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
           --tag ${REPOSITORY}:${TAG} \
           --tag ${REPOSITORY}:${{ steps.version.outputs.version }} \
           --tag ${REPOSITORY}:latest \
