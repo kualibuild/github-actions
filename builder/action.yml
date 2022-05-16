@@ -59,7 +59,6 @@ runs:
       run: |
         export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
-        docker pull ${REPOSITORY}:latest
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} \
           --cache-from=type=gha \
