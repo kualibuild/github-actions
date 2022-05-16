@@ -25,6 +25,9 @@ inputs:
     description: "the name of the dockerfile to use for building the image"
     required: false
     default: "Dockerfile"
+  build_args:
+    description: "a comma separated list of build args to pass to the buildx build command"
+    required: false
 
 outputs:
   version:
@@ -57,10 +60,14 @@ runs:
     - name: Building + Pushing Docker Image
       shell: bash
       run: |
+        ARGS=""
+        if [ ! -z "${{ inputs.build_args }}" ]; then
+          ARGS="--build-arg ${{ inputs.build_args }}"
+        fi
         export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_name }} \
-          --platform ${{ inputs.platforms }} \
+          --platform ${{ inputs.platforms }} ${ARGS} \
           --cache-from=type=gha \
           --cache-to=type=gha,mode=max \
           --tag ${REPOSITORY}:${TAG} \
