@@ -1,0 +1,50 @@
+name: "Image Builder"
+description: "Builds multiarch images via Docker/Buildx and pushes them into ECR"
+author: "Cameron Larsen @cam3ron2"
+branding:
+  icon: "terminal"
+  color: "blue"
+
+inputs:
+  registry:
+    description: "the ecr registry that images will be pushed to"
+    required: false
+    default: "667650582711.dkr.ecr.us-west-2.amazonaws.com"
+  repository:
+    description: "the ecr repo that images will be pushed to"
+    required: true
+  platforms:
+    description: "a comma separated list of cpu architectures that the image will be built for. Example: 'linux/arm64,linux/amd64'"
+    required: false
+    default: "linux/arm64,linux/amd64"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Set Version
+      shell: bash
+      run: echo "::set-output name=version::$(date +%Y%m%d%H%M%S)"
+      id: version
+    - name: Login to ECR
+      shell: bash
+      run: |
+        region=$(echo ${ inputs.registry } | cut -d'.' -f4)
+        aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ inputs.registry }
+    - name: Building + Pushing Docker Image
+      shell: bash
+      run: |
+        export REPOSITORY=${ inputs.registry }/${ inputs.repository }
+        export TAG="$(git rev-parse --short HEAD)"
+        docker pull ${REPOSITORY}:latest
+        docker buildx build . -f Dockerfile \
+          --platform ${ inputs.platforms } \
+          --cache-from ${REPOSITORY}:latest \
+          --tag ${REPOSITORY}:${TAG} \
+          --tag ${REPOSITORY}:${{ steps.version.outputs.version }} \
+          --tag ${REPOSITORY}:latest \
+          --push
