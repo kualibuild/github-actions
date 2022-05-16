@@ -1,37 +1,40 @@
-name: 'ArgoCD Application Deploy'
-description: 'Creates a PR for argo deployments'
-author: 'Cameron Larsen @cam3ron2'
+name: "ArgoCD Application Deploy"
+description: "Creates a PR for argo deployments"
+author: "Cameron Larsen @cam3ron2"
 branding:
-  icon: 'terminal'
-  color: 'blue'
+  icon: "terminal"
+  color: "blue"
 
 inputs:
   eks:
-    description: 'If true, will deploy to EKS'
+    description: "If true, will deploy to EKS"
     required: false
     default: "true"
   cluster_name:
-    description: 'name of the cluster we will deploy to'
+    description: "name of the cluster we will deploy to"
     required: true
   cluster_state:
-    description: 'If eks=false, Location of kops statefile'
+    description: "If eks=false, Location of kops statefile"
     required: false
   security_group_id:
-    description: 'The KOPS cluster SG that we will modify for API access'
+    description: "The KOPS cluster SG that we will modify for API access"
     required: false
   region:
-    description: 'Region of k8s resources'
+    description: "Region of k8s resources"
     required: true
-  namespace: 
-    description: 'Namespace where k8s resources reside'
+  namespace:
+    description: "Namespace where k8s resources reside"
     required: true
   branch:
-    description: 'Branch in the github repo that should be targeted'
+    description: "Branch in the github repo that should be targeted"
     required: true
   version:
-    description: 'version string for image tag'
+    description: "version string for image tag"
     required: true
-  
+  noverify:
+    description: "If true, will not assume verify environment present"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
