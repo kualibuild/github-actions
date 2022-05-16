@@ -39,8 +39,11 @@ mkbranch() {
   cluster=${2}
   tag=${3}
   name="update-${branch}-${cluster}-${tag}"
-  echo "Creating branch: ${branch}"
-  git switch -c ${branch} origin/${branch}
+  if [[ ! "main master" =~ ${branch} ]]; then
+    echo "Creating branch: ${branch}"
+    git switch -c ${branch} origin/${branch}
+    git checkout -b ${branch}
+  fi
   git checkout -b ${name}
   sed -i "s/^    newTag: .*$/    newTag: \'${tag}\'/" ./*/*/kustomization.yaml
   # check if commit is needed
