@@ -1,0 +1,53 @@
+name: "ArgoCD Application Deploy"
+description: "Creates a PR for argo deployments"
+author: "Cameron Larsen @cam3ron2"
+branding:
+  icon: "terminal"
+  color: "blue"
+
+inputs:
+  eks:
+    description: "If true, will deploy to EKS"
+    required: false
+    default: "true"
+  cluster_name:
+    description: "name of the cluster we will deploy to"
+    required: true
+  cluster_state:
+    description: "If eks=false, Location of kops statefile"
+    required: false
+  security_group_id:
+    description: "The KOPS cluster SG that we will modify for API access"
+    required: false
+  region:
+    description: "Region of k8s resources"
+    required: true
+  version:
+    description: "version string for image tag"
+    required: false
+  registry:
+    description: "the ecr registry that images will be pushed to"
+    required: false
+    default: "667650582711.dkr.ecr.us-west-2.amazonaws.com"
+  repository:
+    description: "the ecr repo that images will be pushed to"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: ${{ github.action_path }}/install.sh ${{ inputs.eks }}
+      shell: bash
+    - run: ${{ github.action_path }}/get_tag.sh ${{ inputs.registry }} ${{ inputs.repository }} ${{ inputs.region }} ${{ inputs.version }}
+      shell: bash
+      id: version
+    - run: ${{ github.action_path }}/open_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
+      id: open
+      shell: bash
+    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.cluster_state }}
+      shell: bash
+    - run: ${{ github.action_path }}/run.sh ${{ inputs.cluster_name }} ${{ steps.version.outputs.version }}
+      shell: bash
+    - run: ${{ github.action_path }}/close_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
+      shell: bash
+      if: always()
