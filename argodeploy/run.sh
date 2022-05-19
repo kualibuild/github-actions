@@ -152,7 +152,7 @@ cleanup() {
   tag=${3}
   name="update-${branch}-${cluster}-${tag}"
   git switch ${branch}
-  git branch -d ${tag}
+  git branch -d ${name}
   git push origin --delete ${name}
 }
 
