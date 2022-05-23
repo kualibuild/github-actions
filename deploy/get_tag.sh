@@ -26,7 +26,7 @@ ver=$(aws ecr describe-images \
   --output json \
   --repository-name ${repo} \
   --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags' \
-  | gsed -nr '/.{4}"([0-9]{14})",/p' \
-  | gsed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g'
+  | sed -nr '/.{4}"([0-9]{14})",/p' \
+  | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g'
 )
 echo "::set-output name=version::${ver}"
