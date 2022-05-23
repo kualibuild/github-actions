@@ -31,7 +31,8 @@ inputs:
     default: "667650582711.dkr.ecr.us-west-2.amazonaws.com"
   repository:
     description: "the ecr repo that images will be pushed to"
-    required: true
+    required: false
+    default: "norepo"
 
 runs:
   using: "composite"
