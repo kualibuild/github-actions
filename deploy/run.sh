@@ -39,8 +39,9 @@ clone() {
     echo -n "Cloning Repository: ${GITHUB_REPO}..."
     git clone ${addr} &>/dev/null || { echo -e "\e[31mfail!\e[0m"; echo -e "\e[31mERR: unable to clone repository\e[0m"; exit 1; }
     echo "done!"
-    [[ -d ${dpath} ]] || { echo -e "\e[31mERR: directory \'${1}\' does not exist\e[0m"; exit 1; }
-    cd ${dpath}
+    [[ -d ${dpath} ]] || { echo -e "\e[31mERR: directory \'${dpath}\' does not exist\e[0m"; exit 1; }
+    cd ${dpath} || { echo -e "\e[31mERR: unable to cd to \'${dpath}\'\e[0m"; exit 1; }
+    echo "Changed directory to: $(pwd)"
   fi
   git config user.name "Cameron Larsen"
   git config user.email "cameron@larsenfam.org"
@@ -52,7 +53,7 @@ mkbranch() {
   local tag=${2}
   local name="update-${cluster}-${tag}"
   local dpath="overlays/${cluster}"
-  [[ -d ${dpath} ]] || { echo -e "\e[31mERR: directory \'${1}\' does not exist\e[0m"; exit 1; }
+  [[ -d ${dpath} ]] || { echo -e "\e[31mERR: directory \'${cluster}\' does not exist\e[0m"; exit 1; }
   if [[ -f ${dpath}/kustomization.yaml ]]; then
     local fpath="${dpath}/*/kustomization.yaml"
   elif [[ -f ${dpath}/kustomization.yml ]]; then
