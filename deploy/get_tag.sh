@@ -31,15 +31,16 @@ ver=$(aws ecr describe-images \
   | sort -rn | head -n 1
 )
 if [[ $(echo ${ver} | wc -w) -lt 1 ]]; then
-  echo "ERR: No date tag found, falling back to sha tag"
+  echo "ERR: latest does not have an associated date tag, falling back to most recent"
   ver=$(aws ecr describe-images \
     --region ${region} \
     --registry-id ${registry} \
     --output json \
     --repository-name ${repo} \
-    --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags' \
-    | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
-    | sed -nr '/\b([a-f0-9]{40})\b/p'
+    --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags' \
+    | gsed -nr '/.{4}"([0-9]{14})",/p' \
+    | gsed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
+    | sort -rn | head -n 1
   )
 fi
 echo "::set-output name=version::${ver}"
