@@ -22,6 +22,10 @@ inputs:
   region:
     description: "Region of k8s resources"
     required: true
+  ecr_region:
+    description: "Region of ECR resources"
+    required: false
+    default: "us-west-2"
   version:
     description: "version string for image tag"
     required: false
@@ -39,7 +43,7 @@ runs:
   steps:
     - run: ${{ github.action_path }}/install.sh ${{ inputs.eks }}
       shell: bash
-    - run: ${{ github.action_path }}/get_tag.sh ${{ inputs.registry }} ${{ inputs.repository }} ${{ inputs.region }} ${{ inputs.version }}
+    - run: ${{ github.action_path }}/get_tag.sh ${{ inputs.registry }} ${{ inputs.repository }} ${{ inputs.ecr_region }} ${{ inputs.version }}
       shell: bash
       id: version
     - run: ${{ github.action_path }}/open_api.sh ${{ inputs.eks }} ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.security_group_id }}
