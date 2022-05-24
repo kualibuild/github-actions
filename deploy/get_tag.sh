@@ -27,6 +27,19 @@ ver=$(aws ecr describe-images \
   --repository-name ${repo} \
   --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags' \
   | sed -nr '/.{4}"([0-9]{14})",/p' \
-  | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g'
+  | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
+  | sort -rn | head -n 1
 )
+if [[ $(echo ${ver} | wc -w) -lt 1 ]]; then
+  echo "ERR: No date tag found, falling back to sha tag"
+  ver=$(aws ecr describe-images \
+    --region ${region} \
+    --registry-id ${registry} \
+    --output json \
+    --repository-name ${repo} \
+    --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags' \
+    | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
+    | sed -nr '/\b([a-f0-9]{40})\b/p'
+  )
+fi
 echo "::set-output name=version::${ver}"
