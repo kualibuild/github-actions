@@ -198,8 +198,8 @@ cleanup() {
   [[ -z ${branch} ]] && { echo -e "\e[31mfail!\e[0m"; echo -e "\e[31mERR: unable to determine HEAD branch\e[0m"; exit 1; }
   local name="update-${cluster}-${tag}"
   git switch ${branch} &>/dev/null
-  git branch -d ${name} &>/dev/null
   git push origin --delete ${name} &>/dev/null
+  git branch -d ${name} &>/dev/null
   echo "done!"
 }
 
