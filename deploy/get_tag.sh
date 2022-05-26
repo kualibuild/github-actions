@@ -38,8 +38,8 @@ if [[ $(echo ${ver} | wc -w) -lt 1 ]]; then
     --output json \
     --repository-name ${repo} \
     --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags' \
-    | gsed -nr '/.{4}"([0-9]{14})",/p' \
-    | gsed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
+    | sed -nr '/.{4}"([0-9]{14})",/p' \
+    | sed -e 's/"//g' -e 's/^[ \t]*//' -e 's/,//g' \
     | sort -rn | head -n 1
   )
 fi
