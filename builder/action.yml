@@ -62,7 +62,9 @@ runs:
       run: |
         ARGS=""
         if [ ! -z "${{ inputs.build_args }}" ]; then
-          ARGS="--build-arg ${{ inputs.build_args }}"
+          for i in $(echo ${{ inputs.build_args }} | tr "," "\n"); do
+            ARGS="${ARGS} --build-arg ${i}"
+          done
         fi
         export REPOSITORY=${{ inputs.registry }}/${{ inputs.repository }}
         export TAG="$(git rev-parse --short HEAD)"
