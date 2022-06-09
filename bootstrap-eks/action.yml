@@ -18,11 +18,11 @@ runs:
   steps:
     - run: ${{ github.action_path }}/clone_repo.sh
       shell: bash
-      if: ${{ inputs.create == 'true' }}
+      if: contains(inputs.create, 'true')
     - run: ./strapper.sh ${{ inputs.cluster_name }}
       working-directory: ./k8s-apps/
       shell: bash
-      if: ${{ inputs.create == 'true' }}
+      if: contains(inputs.create, 'true')
     - run: ${{ github.action_path }}/restore.sh
       shell: bash
       if: contains(inputs.cluster_name, 'dr-') && contains(inputs.create, 'true')
