@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "clusterupdate/cmd"
+import "pr-auto-assign/cmd"
 
 func main() {
 	cmd.Execute()
