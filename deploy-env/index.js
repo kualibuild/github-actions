@@ -12,8 +12,10 @@ if (!APTIBLE_USERNAME) throw new Error('aptible_username is required')
 const APTIBLE_PASSWORD = (process.env.INPUT_APTIBLE_PASSWORD || '').trim()
 if (!APTIBLE_PASSWORD) throw new Error('aptible_password is required')
 
+const YAML_NAME = (process.env.INPUT_YAML_NAME || '').trim() || 'deploy-env'
+
 const raw = execSync(
-  `ruby -rjson -ryaml -e "puts YAML.load_file('.github/workflows/deploy-env.yaml').to_json"`,
+  `ruby -rjson -ryaml -e "puts YAML.load_file('.github/workflows/${YAML_NAME}.yaml').to_json"`,
   'utf-8'
 )
 const { env } = JSON.parse(raw).jobs['deploy-env'].steps[1]
