@@ -42,6 +42,7 @@ execSync(
 )
 
 for (const e of environments) {
+  e.obj.FORCE_SSL = true
   const cmd = [
     'aptible',
     'config:set',
