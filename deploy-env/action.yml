@@ -4,6 +4,9 @@ inputs:
   app_name:
     description: 'Name of the app in aptible'
     required: true
+  yaml_name:
+    description: 'Name of the yaml file where env lives'
+    required: false
   aptible_username:
     description: 'Username of aptible account'
     required: true
