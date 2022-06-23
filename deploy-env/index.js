@@ -45,7 +45,7 @@ for (const e of environments) {
     'config:set',
     `--app ${APP_NAME}`,
     `--environment ${e.env}`,
-    ...Object.keys(e.obj).map(key => `${key}=${e.obj[key]}`)
+    ...Object.keys(e.obj).map(key => `${key}='${e.obj[key]}'`)
   ].join(' ')
 
   execSync(cmd)
