@@ -11,7 +11,13 @@ bool=("true" "false")
 noverify=${5}
 [[ ! ${bool[@]} =~ ${noverify} ]] && { echo "ERR: noverify must be 'true' or 'false'"; exit 1; }
 
-kubectl version --short || { echo "ERR: unable to connect to kubernetes cluster"; exit 1; }
+retry=0
+while [[ ${retry} -le 5 ]]; do
+  kubectl version --short || echo "ERR: unable to connect to kubernetes cluster" && break
+  ((retry++))
+  echo "Retrying in 30 seconds... (count: ${retry})"
+  sleep 30
+done
 kubectl get ns ${2} &>/dev/null || { echo "ERR: namespace \'${2}\' does not exist"; exit 1; }
 kubectl get ns argocd &>/dev/null || { echo "ERR: namespace 'argocd' does not exist"; exit 1; }
 kubectl config set-context --current --namespace=argocd || { echo "ERR: unable to set context to 'argocd' namespace"; exit 1; }
@@ -147,17 +153,6 @@ deploywait() {
   done
 }
 
-cleanup() {
-  branch=${1}
-  cluster=${2}
-  tag=${3}
-  name="update-${branch}-${cluster}-${tag}"
-  git switch ${branch}
-  git push origin --delete ${name}
-  git branch -d ${name}
-
-}
-
 # clone repo and edit files
 clone ${GITHUB_REPO} ${REPOSTRING}
 
@@ -185,9 +180,6 @@ if [ -n "${changes}" ]; then
 
   # wait for argo to increment the version on the deploy which signals the start of the rollout
   deploywait ${2} ${4}
-
-  # Delete the branch now that we are done with it
-  cleanup ${1} ${3} ${4}
 
   # watch rollout status
   kubectl -n ${2} rollout status deploy/${SERVICE}
