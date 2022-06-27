@@ -67,6 +67,7 @@ forkbranch() {
   git switch -c verify origin/verify
   git switch ${branch}
   git checkout -b ${name}
+  sync
   # checkout verify branch paths that we want push into master
   for i in $(ls -d */ | grep verify); do
     git checkout verify -- ${i}
@@ -161,9 +162,9 @@ cleanup() {
 clone ${GITHUB_REPO} ${REPOSTRING}
 
 if [[ "${1}" == "verify" || "${noverify}" == "true" ]]; then
-  mkbranch ${1} ${2} ${4}
+  mkbranch ${1} ${3} ${4}
 elif [[ ${noverify} == "false" ]]; then
-  forkbranch ${1} ${2} ${4}
+  forkbranch ${1} ${3} ${4}
 else
   echo "WARN: set to 'true' but target branch is set to verify. Unable to proceed."
 fi
