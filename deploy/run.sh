@@ -67,7 +67,7 @@ mkbranch() {
   local exists=$(git branch -l ${name})
   [[ -n ${exists} ]] && { echo "WARN: branch '${name}' already exists"; cleanup ${cluster} ${tag}; }
   git checkout -b ${name} &>/dev/null
-  sed -i "s/^    newTag: .*$/    newTag: \"${tag}\"/" ${fpath}
+  gsed -i "s/^    newTag: .*$/    newTag: \"${tag}\"/" ${fpath}
   # check if commit is needed
   git add . -A &>/dev/null
   local changes=$(git status -s)
@@ -78,7 +78,6 @@ mkbranch() {
     echo "done!"
     export NEED_PR=true
   else
-    echo "No changes to commit"
     export NEED_PR=false
   fi
 }
@@ -149,11 +148,33 @@ deployinfo() {
   [[ -f ${dpath}/kustomization.yaml || -f ${dpath}/kustomization.yml || -f ${dpath}/Kustomization ]] || { echo -e "\e[31mERR: directory \'${dpath}\' does not appear to be a valid Kustomize directory\e[0m"; exit 1; }
   local raw=$(kustomize build ${dpath})
   export RESOURCES=$(echo "${raw}" | kubectl apply --dry-run=client -f - | cut -d' ' -f1)
-  export NS=$(echo "${raw}" | grep -A 20 'kind: Deployment' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  if echo "${raw}" | grep -q 'kind: Deployment'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: Deployment' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo "${raw}" | grep -q 'kind: ReplicationController'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: ReplicationController' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo "${raw}" | grep -q 'kind: StatefulSet'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: StatefulSet' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo "${raw}" | grep -q 'kind: CronJob'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: CronJob' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo "${raw}" | grep -q 'kind: Job'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: Job' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo "${raw}" | grep -q 'kind: Pod'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: Pod' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  elif
+    echo  "${raw}" | grep -q 'kind: DaemonSet'; then
+    export NS=$(echo "${raw}" | grep -A 20 'kind: DaemonSet' |  grep 'namespace' | sort | uniq -c | sort -rn | head | awk '{print $3}')
+  else
+    echo -e "\e[31mERR: unable to determine namespace to track rollout, please log into the cluster to verify\e[0m"
+    exit 0
+  fi
   export ARGO=$(echo "${raw}" | grep -A 20 'kind: Application' |  grep 'name:' | awk '{print $2}')
   local deploy=$(echo "${RESOURCES}" | grep "deployment.apps/")
   local statefulset=$(echo "${RESOURCES}" | grep "statefulset.apps/")
-  local pod=$(echo "${RESOURCES}" | grep "pod/")
   local daemonset=$(echo "${RESOURCES}" | grep "daemonset.apps/")
   export TARGETS="${deploy} ${statefulset} ${pod} ${daemonset}"
 }
