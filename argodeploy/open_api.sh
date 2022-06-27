@@ -58,7 +58,14 @@ if [[ $1 == "true" ]]; then
   # validate cluster exists in region
   CLUSTER=$(aws eks describe-cluster --name ${2} --region ${3} 2>/dev/null)
   [[ -z ${CLUSTER} ]] && { echo "ERR: Cluster ${2} does not exist in region ${3}"; exit 1; }
-  
+  retry=0
+  while [[ ${retry} -le 5 ]]; do
+    [[ $(echo ${CLUSTER} | jq -r '.cluster.status') == 'ACTIVE' ]] || echo "WARN: Cluster ${2} not in 'ACTIVE' state." && break
+    ((retry++))
+    echo "WARN: Retrying in 30s...(Attempts: ${retry})"
+    sleep 30
+    CLUSTER=$(aws eks describe-cluster --name ${2} --region ${3} 2>/dev/null)
+  done
   echo "Adding API access for ${IP_ADDR}..."
   START=$(echo ${CLUSTER} | jq '.cluster.resourcesVpcConfig.publicAccessCidrs[]' | tr '\n' ',' | sed -e 's/,$//g')
 
@@ -67,6 +74,7 @@ if [[ $1 == "true" ]]; then
       --name ${2} \
       --resources-vpc-config endpointPublicAccess=true,publicAccessCidrs="${START},${IP_ADDR}/32",endpointPrivateAccess=true | jq -r '.update.id')
 
+  [[ -z ${UPDATE_ID} ]] && { echo "ERR: failed to update cluster ${2} in region ${3}"; exit 1; }
   STATUS=$(aws eks describe-update --region ${3} --name ${2} --update-id ${UPDATE_ID} | jq -r '.update.status')
   while [[ ${STATUS} == "InProgress" ]]; do
     echo "Waiting for update to complete..."
