@@ -67,7 +67,7 @@ mkbranch() {
   local exists=$(git branch -l ${name})
   [[ -n ${exists} ]] && { echo "WARN: branch '${name}' already exists"; cleanup ${cluster} ${tag}; }
   git checkout -b ${name} &>/dev/null
-  gsed -i "s/^    newTag: .*$/    newTag: \"${tag}\"/" ${fpath}
+  sed -i "s/^    newTag: .*$/    newTag: \"${tag}\"/" ${fpath}
   # check if commit is needed
   git add . -A &>/dev/null
   local changes=$(git status -s)
