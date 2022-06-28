@@ -30,7 +30,7 @@ runs:
       id: open
       shell: bash
       if: inputs.action == 'open'
-    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }}
+    - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
       shell: bash
       if: inputs.action == 'open'
     - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
