@@ -25,6 +25,7 @@ else
     exit 1
   else
     echo "WARN: Exiting success because softfail is enabled"
+    echo "::set-output name=softfailed::true"
     exit 0
   fi
 fi

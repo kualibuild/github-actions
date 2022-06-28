@@ -20,6 +20,11 @@ inputs:
     required: false
     default: "false"
 
+outputs:
+  version:
+    description: "true if we softfailed"
+    value: "${{ steps.kubeconfig.outputs.softfailed }}"
+
 runs:
   using: "composite"
   steps:
@@ -31,6 +36,7 @@ runs:
       shell: bash
       if: inputs.action == 'open'
     - run: ${{ github.action_path }}/get_kubeconfig.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
+      id: kubeconfig
       shell: bash
       if: inputs.action == 'open'
     - run: ${{ github.action_path }}/close_api.sh ${{ inputs.cluster_name }} ${{ inputs.region }} ${{ inputs.softfail }}
