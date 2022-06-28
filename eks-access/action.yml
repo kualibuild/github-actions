@@ -21,7 +21,7 @@ inputs:
     default: "false"
 
 outputs:
-  version:
+  softfailed:
     description: "true if we softfailed"
     value: "${{ steps.kubeconfig.outputs.softfailed }}"
 

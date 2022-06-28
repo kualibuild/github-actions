@@ -19,6 +19,7 @@ export AWS_MAX_ATTEMPTS=10
 # get kubeconfig for eks
 if aws eks --region ${2} update-kubeconfig --name ${1} --alias ${1}; then
   kubectl config set-context --current --namespace=argocd
+  echo "::set-output name=softfailed::false"
 else
   if [[ ${3} == "false" ]]; then 
     echo "ERR: aws eks update-kubeconfig failed"
