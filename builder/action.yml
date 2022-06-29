@@ -71,6 +71,7 @@ runs:
         echo "Building ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }}"
         docker buildx build ${{ inputs.dockerfile_path }} -f ${{ inputs.dockerfile_path }}${{ inputs.dockerfile_name }} \
           --platform ${{ inputs.platforms }} ${ARGS} \
+          --build-arg VERSION=${{ steps.version.outputs.version }} \
           --cache-from=type=gha \
           --cache-to=type=gha,mode=max \
           --tag ${REPOSITORY}:${TAG} \
