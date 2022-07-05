@@ -50,7 +50,7 @@ runs:
         git config --global user.name "Kuali Ops (github-actions)"
         ts=$(date +%Y-%m-%d)
         echo "BRANCHES:"
-        git branch
+        git branch -r
         git checkout ${{ inputs.branch }}
         git checkout -b "update-base-${ts}"
         git add ${APP_PATH} -A
