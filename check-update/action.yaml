@@ -22,7 +22,7 @@ inputs:
   branch: 
     description: "The branch to update"
     required: false
-    default: "origin/main"
+    default: "stage"
 
 runs:
   using: "composite"
@@ -49,9 +49,6 @@ runs:
         git config --global user.email "ops@kuali.co"
         git config --global user.name "Kuali Ops (github-actions)"
         ts=$(date +%Y-%m-%d)
-        echo "BRANCHES:"
-        git branch -r
-        git checkout --track ${{ inputs.branch }}
         git checkout -b "update-base-${ts}"
         git add ${APP_PATH} -A
         changes=$(git status -s)
