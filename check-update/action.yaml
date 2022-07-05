@@ -19,6 +19,10 @@ inputs:
     description: "The script to run"
     required: false
     default: "update.sh"
+  branch: 
+    description: "The branch to update"
+    required: false
+    default: "main"
 
 runs:
   using: "composite"
@@ -48,6 +52,7 @@ runs:
         ts=$(date +%Y-%m-%d)
         echo "BRANCHES:"
         git branch
+        git switch ${{ inputs.branch }}
         git checkout -b "update-base-${ts}"
         git add ${APP_PATH} -A
         changes=$(git status -s)
@@ -55,8 +60,8 @@ runs:
           echo "Changes detected, committing..."
           git commit -m "Update base ${ts}"
           git push --set-upstream origin "update-base-${ts}"
-          PR=$(hub pull-request -p -b main -m "${APP} Update: ${ts}" | grep github.com) 
-          [[ "${PR}" =~ "${REPO}/pull/" ]] || { git checkout main; git push origin --delete "update-base-${ts}"; git checkout -d "update-base-${ts}"; exit 1; }
+          PR=$(hub pull-request -p -b ${{ inputs.branch }} -m "${APP} Update: ${ts}" | grep github.com) 
+          [[ "${PR}" =~ "${REPO}/pull/" ]] || { git checkout ${{ inputs.branch }}; git push origin --delete "update-base-${ts}"; git checkout -d "update-base-${ts}"; exit 1; }
           echo "::set-output name=pr::${PR}"
           echo "::set-output name=changes::true"
         else
