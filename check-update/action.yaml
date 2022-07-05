@@ -9,6 +9,16 @@ inputs:
   app:
     description: "The app to update"
     required: true
+  repo:
+    description: "The repo to update"
+    required: true
+  path: 
+    description: "The path to the app"
+    required: true
+  script:
+    description: "The script to run"
+    required: false
+    default: "update.sh"
 
 runs:
   using: "composite"
@@ -16,6 +26,42 @@ runs:
     - run: ${{ github.action_path }}/setup.sh
       working-directory: ${{ github.action_path }}
       shell: bash
-    - run: ${{ github.action_path }}/run.sh ${{ inputs.app }}
+
+    - name: update
+      id: update
+      env:
+        APP_PATH: ${{ inputs.path }}
+        SCRIPT: ${{ inputs.script }}
+      run: |
+        cd ${APP_PATH} && ./${SCRIPT} && cd ..
+      working-directory: ${{ github.action_path }}
+      shell: bash
+
+    - name: pull request
+      env:
+        APP: ${{ inputs.app }}
+        REPO: ${{ inputs.repo }}
+        APP_PATH: ${{ inputs.path }}
+      run: |
+        git config --global user.email "ops@kuali.co"
+        git config --global user.name "Kuali Ops (github-actions)"
+        ts=$(date +%Y-%m-%d)
+        echo "BRANCHES:"
+        git branch
+        git checkout -b "update-base-${ts}"
+        git add ${APP_PATH} -A
+        changes=$(git status -s)
+        if [ -n "${changes}" ]; then 
+          echo "Changes detected, committing..."
+          git commit -m "Update base ${ts}"
+          git push --set-upstream origin "update-base-${ts}"
+          PR=$(hub pull-request -p -b main -m "${APP} Update: ${ts}" | grep github.com) 
+          [[ "${PR}" =~ "${REPO}/pull/" ]] || { git checkout main; git push origin --delete "update-base-${ts}"; git checkout -d "update-base-${ts}"; exit 1; }
+          echo "::set-output name=pr::${PR}"
+          echo "::set-output name=changes::true"
+        else
+          echo "No changes detected, skipping commit..."
+          echo "::set-output name=changes::false"
+        fi
       working-directory: ${{ github.action_path }}
       shell: bash
