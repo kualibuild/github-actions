@@ -22,7 +22,7 @@ inputs:
   branch: 
     description: "The branch to update"
     required: false
-    default: "main"
+    default: "origin/main"
 
 runs:
   using: "composite"
@@ -51,7 +51,7 @@ runs:
         ts=$(date +%Y-%m-%d)
         echo "BRANCHES:"
         git branch -r
-        git checkout ${{ inputs.branch }}
+        git checkout --track ${{ inputs.branch }}
         git checkout -b "update-base-${ts}"
         git add ${APP_PATH} -A
         changes=$(git status -s)
