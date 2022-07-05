@@ -24,6 +24,14 @@ inputs:
     required: false
     default: "stage"
 
+outputs:
+  pr:
+    description: "the pr number"
+    value: "${{ steps.pr.outputs.pr }}"
+  changes:
+    description: "boolean, were changes made"
+    value: "${{ steps.pr.outputs.changes }}"
+
 runs:
   using: "composite"
   steps:
@@ -41,6 +49,7 @@ runs:
       shell: bash
 
     - name: pull request
+      id: pr
       env:
         APP: ${{ inputs.app }}
         REPO: ${{ inputs.repo }}
