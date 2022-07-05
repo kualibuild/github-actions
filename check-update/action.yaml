@@ -49,15 +49,15 @@ runs:
         git config --global user.email "ops@kuali.co"
         git config --global user.name "Kuali Ops (github-actions)"
         ts=$(date +%Y-%m-%d)
-        git checkout -b "update-base-${ts}"
+        git checkout -b "update-${APP}-${ts}"
         git add ${APP_PATH} -A
         changes=$(git status -s)
         if [ -n "${changes}" ]; then 
           echo "Changes detected, committing..."
-          git commit -m "Update base ${ts}"
-          git push --set-upstream origin "update-base-${ts}"
+          git commit -m "Update ${APP} ${ts}"
+          git push --set-upstream origin "update-${APP}-${ts}"
           PR=$(hub pull-request -p -b ${{ inputs.branch }} -m "${APP} Update: ${ts}" | grep github.com) 
-          [[ "${PR}" =~ "${REPO}/pull/" ]] || { git checkout ${{ inputs.branch }}; git push origin --delete "update-base-${ts}"; git checkout -d "update-base-${ts}"; exit 1; }
+          [[ "${PR}" =~ "${REPO}/pull/" ]] || { git checkout ${{ inputs.branch }}; git push origin --delete "update-${APP}-${ts}"; git checkout -d "update-${APP}-${ts}"; exit 1; }
           echo "::set-output name=pr::${PR}"
           echo "::set-output name=changes::true"
         else
