@@ -51,7 +51,7 @@ runs:
         ts=$(date +%Y-%m-%d)
         echo "BRANCHES:"
         git branch
-        git switch ${{ inputs.branch }}
+        git checkout ${{ inputs.branch }}
         git checkout -b "update-base-${ts}"
         git add ${APP_PATH} -A
         changes=$(git status -s)
