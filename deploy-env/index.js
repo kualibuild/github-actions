@@ -21,8 +21,8 @@ const raw = execSync(
 const { env } = JSON.parse(raw).jobs['deploy-env'].steps[1]
 
 const environments = [
-  // { prefix: 'US_EAST_2', env: 'platform_us-east-2', obj: {} },
-  { prefix: 'CA_CENTRAL_1', env: 'platform_ca-central-1', obj: {} }
+  // { prefix: 'US_EAST_2', env: 'platform-us-east-2', obj: {} },
+  { prefix: 'CA_CENTRAL_1', env: 'platform-ca-central-1', obj: {} }
 ]
 
 const prefixes = environments.map(a => a.prefix)
