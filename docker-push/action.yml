@@ -6,9 +6,9 @@ inputs:
     required: true
     default: ghcr.io
   image:
-    description: The Docker image name
+    description: The Docker image name (include the registry)
     required: true
-    default: ${{ github.repository }}
+    default: ghcr.io/${{ github.repository }}
   username:
     description: The username for the docker registry
     required: true
@@ -45,6 +45,6 @@ runs:
         context: ${{ inputs.context }}
         push: true
         build-args: ${{ inputs.build-args }}
-        tags: ${{ inputs.registry }}/${{ inputs.image }}:${{ steps.version.outputs.version }},${{ inputs.registry }}/${{ inputs.image }}:latest
-        cache-from: type=registry,ref=${{ inputs.registry }}/${{ inputs.image }}:latest
+        tags: ${{ inputs.image }}:${{ steps.version.outputs.version }},${{ inputs.image }}:latest
+        cache-from: type=registry,ref=${{ inputs.image }}:latest
         cache-to: type=inline
