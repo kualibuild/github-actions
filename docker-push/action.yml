@@ -1,0 +1,50 @@
+name: Docker Build and Push
+description: Common Build
+inputs:
+  registry:
+    description: The Docker Registry to deploy to
+    required: true
+    default: ghcr.io
+  image:
+    description: The Docker image name
+    required: true
+    default: ${{ github.repository }}
+  username:
+    description: The username for the docker registry
+    required: true
+    default: ${{ github.actor }}
+  password:
+    description: The password for the docker registry
+    required: true
+    default: ${{ github.token }}
+  context:
+    description: The folder in which to start the docker build
+    required: true
+    default: '.'
+  build-args:
+    description: The build args to use when building
+outputs:
+  version:
+    description: The version tag of the image
+    value: ${{ steps.version.outputs.version }}
+runs:
+  using: 'composite'
+  steps:
+    - uses: docker/setup-qemu-action@v2
+    - uses: docker/setup-buildx-action@v2
+    - id: version
+      shell: bash
+      run: echo "::set-output name=version::$(date +%Y%m%d%H%M%S)"
+    - uses: docker/login-action@v2
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+    - uses: docker/build-push-action@v3
+      with:
+        context: ${{ inputs.context }}
+        push: true
+        build-args: ${{ inputs.build-args }}
+        tags: ${{ inputs.registry }}/${{ inputs.image }}:${{ steps.version.outputs.version }},${{ inputs.registry }}/${{ inputs.image }}:latest
+        cache-from: type=registry,ref=${{ inputs.registry }}/${{ inputs.image }}:latest
+        cache-to: type=inline
