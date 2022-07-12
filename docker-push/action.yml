@@ -44,7 +44,9 @@ runs:
       with:
         context: ${{ inputs.context }}
         push: true
-        build-args: ${{ inputs.build-args }} VERSION='${{steps.version.outputs.version}}'
+        build-args: |
+          ${{ inputs.build-args }}
+          VERSION='${{steps.version.outputs.version}}'
         tags: ${{ inputs.image }}:${{ steps.version.outputs.version }},${{ inputs.image }}:latest
         cache-from: type=registry,ref=${{ inputs.image }}:latest
         cache-to: type=inline
