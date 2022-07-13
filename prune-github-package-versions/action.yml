@@ -1,0 +1,42 @@
+name: 'Prune Github Package Versions'
+description: 'Github Action to prune the number of github packages to the latest X number of versions'
+author: 'kualibuild'
+inputs:
+  owner:
+    description: >
+      Owner of the repo containing the package version to delete.
+      Defaults to the owner of the repo running the action.
+    required: false
+
+  package-name:
+    description: >
+      Name of the package containing the version to delete.
+      Required if dynamically deleting oldest versions.
+    required: false
+
+  package-type:
+    description: >
+      The package type. It should be one of: `npm`, `maven`, `rubygems`,
+      `docker`, `nuget`, `container`
+    required: true
+    default: container
+
+  min-versions-to-keep:
+    description: >
+      Number of versions to keep starting with the latest version
+      By default keeps no version.
+      To delete all versions set this as 0.
+    required: false
+    default: '-1'
+
+  token:
+    description: >
+      Token with the necessary scopes to delete package versions.
+      If num-old-versions-to-delete is used the token also needs the read packages scope.
+      Defaults to github.token scoped to the repo running the action. To delete package versions
+      of a package outside the repo the action is running in use a Personal Access Token stored as a secret.
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
