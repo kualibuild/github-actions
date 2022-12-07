@@ -38,7 +38,7 @@ runs:
         platforms: ${{ inputs.platforms }}
     - id: version
       shell: bash
-      run: echo "::set-output name=version::$(date +%Y%m%d%H%M%S)"
+      run: echo "version=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
     - uses: docker/login-action@v2
       with:
         registry: ${{ inputs.registry }}
@@ -48,7 +48,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         push: true
-        # platforms: ${{ inputs.platforms }}
+        platforms: ${{ inputs.platforms }}
         build-args: |
           ${{ inputs.build-args }}
           VERSION=${{steps.version.outputs.version}}
