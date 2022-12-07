@@ -48,7 +48,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         push: true
-        platforms: ${{ inputs.platforms }}
+        # platforms: ${{ inputs.platforms }}
         build-args: |
           ${{ inputs.build-args }}
           VERSION=${{steps.version.outputs.version}}
