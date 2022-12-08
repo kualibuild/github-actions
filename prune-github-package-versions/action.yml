@@ -8,6 +8,11 @@ inputs:
       Defaults to the owner of the repo running the action.
     required: false
 
+  user:
+    description: >
+      Set this to true if the owner is not an organization but a user.
+    required: false
+
   package-name:
     description: >
       Name of the package containing the version to delete.

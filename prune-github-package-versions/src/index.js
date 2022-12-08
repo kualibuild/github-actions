@@ -7,6 +7,7 @@ async function run () {
     const packageName = core.getInput('package-name') || context.repo.repo
     const packageType = core.getInput('package-type')
     const token = core.getInput('token', { required: true })
+    const user = core.getInput('user')
     const minVersionsToKeep = Number.parseInt(
       core.getInput('min-versions-to-keep'),
       10
@@ -24,12 +25,21 @@ async function run () {
     )
     const toDelete = versions.slice(minVersionsToKeep)
     for (const packageVersion of toDelete) {
-      await octokit.rest.packages.deletePackageVersionForOrg({
-        org: owner,
-        package_name: packageName,
-        package_version_id: packageVersion.id,
-        package_type: packageType
-      })
+      if (user === 'true') {
+        await octokit.rest.packages.deletePackageVersionForUser({
+          username: owner,
+          package_name: packageName,
+          package_version_id: packageVersion.id,
+          package_type: packageType
+        })
+      } else {
+        await octokit.rest.packages.deletePackageVersionForOrg({
+          org: owner,
+          package_name: packageName,
+          package_version_id: packageVersion.id,
+          package_type: packageType
+        })
+      }
     }
     core.notice(`Deleted count: ${toDelete.length}`)
   } catch (error) {
@@ -73,20 +83,19 @@ function isPackageType (value) {
  * @param {PackageType} params.packageType
  * @param {Octokit} params.octokit
  */
-async function * getVersions ({ owner, packageName, packageType, octokit }) {
+async function* getVersions ({ owner, packageName, packageType, octokit }) {
   const perPage = 100
   let keepPaging = true
   let page = 1
   do {
-    const response = await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg(
-      {
+    const response =
+      await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
         org: owner,
         package_name: packageName,
         package_type: packageType,
         per_page: perPage,
         page
-      }
-    )
+      })
     for (const version of response.data) yield version
     if (response.data.length < perPage) keepPaging = false
     else page += 1
