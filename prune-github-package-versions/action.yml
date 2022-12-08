@@ -10,7 +10,7 @@ inputs:
 
   user:
     description: >
-      Set this to true if the owner is not an organization but a user.
+      Set this to true if the owner is a user rather than an organization.
     required: false
 
   package-name:

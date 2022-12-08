@@ -7,7 +7,7 @@ async function run () {
     const packageName = core.getInput('package-name') || context.repo.repo
     const packageType = core.getInput('package-type')
     const token = core.getInput('token', { required: true })
-    const user = core.getInput('user')
+    const isUser = core.getInput('user') === 'true'
     const minVersionsToKeep = Number.parseInt(
       core.getInput('min-versions-to-keep'),
       10
@@ -21,11 +21,11 @@ async function run () {
     }
     const octokit = createOctokit(token)
     const versions = await asyncIteratorToArray(
-      getVersions({ owner, packageName, packageType, octokit })
+      getVersions({ owner, isUser, packageName, packageType, octokit })
     )
     const toDelete = versions.slice(minVersionsToKeep)
     for (const packageVersion of toDelete) {
-      if (user === 'true') {
+      if (isUser) {
         await octokit.rest.packages.deletePackageVersionForUser({
           username: owner,
           package_name: packageName,
@@ -79,23 +79,37 @@ function isPackageType (value) {
 /**
  * @param {object} params
  * @param {string} params.owner
+ * @param {boolean} params.isUser
  * @param {string} params.packageName
  * @param {PackageType} params.packageType
  * @param {Octokit} params.octokit
  */
-async function* getVersions ({ owner, packageName, packageType, octokit }) {
+async function* getVersions ({
+  owner,
+  isUser,
+  packageName,
+  packageType,
+  octokit
+}) {
   const perPage = 100
   let keepPaging = true
   let page = 1
   do {
-    const response =
-      await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-        org: owner,
-        package_name: packageName,
-        package_type: packageType,
-        per_page: perPage,
-        page
-      })
+    const response = isUser
+      ? await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+          username: owner,
+          package_name: packageName,
+          package_type: packageType,
+          per_page: perPage,
+          page
+        })
+      : await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+          org: owner,
+          package_name: packageName,
+          package_type: packageType,
+          per_page: perPage,
+          page
+        })
     for (const version of response.data) yield version
     if (response.data.length < perPage) keepPaging = false
     else page += 1
