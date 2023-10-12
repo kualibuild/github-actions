@@ -16,7 +16,7 @@ if [[ $1 == "false" ]]; then
   echo "Done!"
 fi
 
-VER=$(curl -s https://api.github.com/repos/github/hub/releases/latest | grep tag_name | cut -d '"' -f 4)
+VER=$(curl -s https://api.github.com/repositories/401025/releases/latest | grep tag_name | cut -d '"' -f 4)
 echo -n "Installing Hub@${VER}..."
 wget -q https://github.com/github/hub/releases/download/${VER}/hub-linux-amd64-${VER:1}.tgz
 tar -xvf hub-linux-amd64-${VER:1}.tgz &>/dev/null
