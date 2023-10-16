@@ -74,7 +74,7 @@ mkbranch() {
   if [ -n "${changes}" ]; then 
     git commit -m "Updated image tag to ${tag}" &>/dev/null
     echo -n "Pushing to remote: ${name}..."
-    git push --set-upstream origin ${name} &>/dev/null || { echo -e "\e[31mfail!\e[0m"; echo -e "\e[31mERR: unable to push branch to remote\e[0m"; exit 1; }
+    git push --set-upstream origin ${name} || { echo -e "\e[31mfail!\e[0m"; echo -e "\e[31mERR: unable to push branch to remote\e[0m"; exit 1; }
     echo "done!"
     export NEED_PR=true
   else
