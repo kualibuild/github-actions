@@ -16,6 +16,7 @@ if [ ! -f "package.json" ]; then
   exit 1
 fi
 
+pwd
 ls -la
 
 PACKAGE_NAME="$(cat package.json | jq -r .name)"
