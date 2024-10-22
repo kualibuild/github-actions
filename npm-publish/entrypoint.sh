@@ -16,6 +16,8 @@ if [ ! -f "package.json" ]; then
   exit 1
 fi
 
+ls -la
+
 PACKAGE_NAME="$(cat package.json | jq -r .name)"
 CURRENT_VERSION="$(cat package.json | jq -r .version)"
 REMOTE_VERSION="$(npm view "${PACKAGE_NAME}" --registry "${NPM_REGISTRY}" version || true)"
