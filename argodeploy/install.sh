@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #VER=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-VER='v1.23.5'
+VER='v1.26.15'
 echo -n "Installing Kubectl@${VER}..."
 curl -sSLO https://storage.googleapis.com/kubernetes-release/release/${VER}/bin/linux/amd64/kubectl
 chmod +x ./kubectl
