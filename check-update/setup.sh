@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 
 if ! hash hub 2>/dev/null; then
   VER=$(curl -s https://api.github.com/repositories/401025/releases/latest | grep tag_name | cut -d '"' -f 4)

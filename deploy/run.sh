@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 export DEPLOY_START_TIME=$(date +%s)
 
 # validate inputs

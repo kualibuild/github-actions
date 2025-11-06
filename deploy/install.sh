@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 #VER=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 VER='v1.23.5'
 echo -n "Installing Kubectl@${VER}..."

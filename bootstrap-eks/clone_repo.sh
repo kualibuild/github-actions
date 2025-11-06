@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 
 # verify required env vars exist
 [[ -z ${GITHUB_TOKEN} ]] && { echo "ERR: GITHUB_TOKEN not set"; exit 1; }

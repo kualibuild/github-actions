@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 
 USAGE="usage: ./run.sh [cluster_name] [region]"
 if [[ $# -lt 2 ]]; then
