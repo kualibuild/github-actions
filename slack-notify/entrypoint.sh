@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 set -eu
 
 # https://github.com/marketplace/actions/post-slack-message

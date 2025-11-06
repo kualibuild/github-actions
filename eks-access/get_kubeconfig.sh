@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 
 # validate inputs
 USAGE="usage: ./get_kubeconfig.sh [cluster_name] [region] [softfail]"

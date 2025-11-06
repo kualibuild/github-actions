@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 set -eu
 
 # ORG="$(printf ${GITHUB_REPOSITORY} | sed -r 's/^([^/]*).*$/\1/')"

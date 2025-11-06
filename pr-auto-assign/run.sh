@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 
 USAGE="usage: ./run.sh [reviewers]"
 if [[ $# -lt 1 ]]; then

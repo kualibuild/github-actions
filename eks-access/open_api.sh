@@ -1,4 +1,5 @@
 #!/usr/bin/env bash 
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 # usage: ./open_api.sh [cluster_name] [region] 
 
 # validate inputs

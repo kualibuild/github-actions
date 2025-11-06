@@ -1,4 +1,5 @@
 #!/usr/bin/env bash 
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 # usage: ./close_api.sh [true|false] [cluster_name] [region] [original_ips|security_group_id])
 
 # validate inputs

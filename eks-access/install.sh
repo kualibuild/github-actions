@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2020-2025 Kuali, Inc. - All Rights Reserved
 VER=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
 echo -n "Installing Kubectl@${VER}..."
 curl -sSLO https://storage.googleapis.com/kubernetes-release/release/${VER}/bin/linux/amd64/kubectl
