@@ -1,0 +1,34 @@
+name: Fly VM Reviewers
+description: Request DevOps review when a fly.toml [[vm]] block changes
+author: Kuali
+branding:
+  icon: cpu
+  color: blue
+
+inputs:
+  files:
+    description: Space-separated fly config paths to watch for [[vm]] changes
+    required: true
+  reviewers:
+    description: Space-separated GitHub logins to request review from
+    required: true
+    default: scojosmith
+  token:
+    description: Token with pull-requests write access
+    required: true
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: ${{ github.action_path }}/run.sh
+      env:
+        FILES: ${{ inputs.files }}
+        REVIEWERS: ${{ inputs.reviewers }}
+        GH_TOKEN: ${{ inputs.token }}
+        REPO: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
