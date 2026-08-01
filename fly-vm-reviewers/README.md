@@ -49,10 +49,12 @@ block itself and exits quietly when nothing capacity-related changed.
   compared, rather than grepping for key names. Both schemas in use are covered
   (`cpu_kind`/`cpus`/`memory`, and `size`), and it stays correct in files where
   `[[vm]]` is not the last block.
-- **One request per reviewer.** GitHub rejects an entire batched review request
-  if any single login lacks repo access, which would leave the PR with no
-  reviewers at all. Each is requested separately; failures log a warning and
-  the rest still go through.
+- **One request per reviewer**, so one bad login cannot take the others down
+  with it. Failures log a warning and the rest still go through.
+- **Success is read back from the response, not the exit code.** GitHub answers
+  `200` and silently adds nobody when a login does not exist, so trusting the
+  exit code would report success while requesting no one — the exact silent
+  failure this action exists to prevent.
 - **Skips the PR author.** GitHub rejects a review request naming the author.
 - **Skips already-pending reviewers**, so pushing to a PR doesn't re-request.
 
