@@ -51,8 +51,10 @@ fi
 
 pending=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.requested_reviewers[].login' 2>/dev/null || true)
 
-# One request per reviewer: a batched call is rejected outright if any single
-# login lacks repo access, which would silently leave the PR with no reviewers.
+# One request per reviewer, so one bad login cannot take the others down with
+# it. Success is read back from the response rather than the exit code: GitHub
+# answers 200 and silently adds nobody when a login does not exist, so an
+# unnoticed typo or renamed account would otherwise look like it worked.
 for user in $REVIEWERS; do
   if [ "$user" = "${PR_AUTHOR:-}" ]; then
     echo "Skipping $user (PR author)"
@@ -64,10 +66,12 @@ for user in $REVIEWERS; do
     continue
   fi
 
-  if gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
-    -f "reviewers[]=$user" --silent 2>/dev/null; then
+  requested=$(gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
+    -f "reviewers[]=$user" --jq '.requested_reviewers[].login' 2>/dev/null || true)
+
+  if grep -qxF "$user" <<<"$requested"; then
     echo "Requested review from $user"
   else
-    echo "::warning::Could not request review from $user - check they have access to $REPO"
+    echo "::warning::Could not request review from $user - check the login is spelled correctly and has access to $REPO"
   fi
 done
