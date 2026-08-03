@@ -40,7 +40,8 @@ block itself and exits quietly when nothing capacity-related changed.
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `files` | yes | — | Space-separated fly config paths to watch |
-| `reviewers` | no | `scojosmith` | Space-separated GitHub logins to request |
+| `teams` | no | `devops` | Space-separated team slugs to request |
+| `reviewers` | no | — | Space-separated GitHub logins, in addition to teams |
 | `token` | no | `${{ github.token }}` | Needs `pull-requests: write` |
 
 ## Behavior notes
@@ -49,6 +50,9 @@ block itself and exits quietly when nothing capacity-related changed.
   compared, rather than grepping for key names. Both schemas in use are covered
   (`cpu_kind`/`cpus`/`memory`, and `size`), and it stays correct in files where
   `[[vm]]` is not the last block.
+- **A team is requested as a unit.** Members who have not yet accepted their org
+  invitation are simply absent from the request rather than causing it to fail,
+  and they start being notified automatically once they join — no change here.
 - **One request per reviewer**, so one bad login cannot take the others down
   with it. Failures log a warning and the rest still go through.
 - **Success is read back from the response, not the exit code.** GitHub answers
@@ -60,6 +64,9 @@ block itself and exits quietly when nothing capacity-related changed.
 
 ## Reviewers
 
-Reviewers must have at least read access to the repo, or GitHub rejects the
-request. To change the roster, edit the `reviewers` default in `action.yml` —
-callers pick it up automatically.
+The team (or user) must have at least read access to the repo, or GitHub rejects
+the request with `422 Reviews may only be requested from collaborators`.
+
+Roster changes are made in GitHub — add or remove people from the `devops` team
+and this action needs no edit at all. Only a change of *which* team is asked
+requires touching the `teams` default in `action.yml`.
