@@ -9,12 +9,15 @@ inputs:
   files:
     description: Space-separated fly config paths to watch for [[vm]] changes
     required: true
-  teams:
-    description: Space-separated team slugs to request review from
-    required: false
-    default: devops
   reviewers:
-    description: Space-separated GitHub logins to request review from, in addition to teams
+    description: Space-separated GitHub logins to request review from
+    required: false
+    default: scojosmith crerwin dlucas-clx
+  teams:
+    description: >-
+      Space-separated team slugs, in addition to reviewers. Needs a token that
+      can read org teams; the default GITHUB_TOKEN cannot, so this is off by
+      default.
     required: false
     default: ""
   token:

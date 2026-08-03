@@ -95,11 +95,14 @@ for user in ${REVIEWERS:-}; do
   fi
 
   requested=$(gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
-    -f "reviewers[]=$user" --jq '.requested_reviewers[].login' 2>/dev/null || true)
+    -f "reviewers[]=$user" --jq '.requested_reviewers[].login' 2>"$work/err" || true)
 
   if grep -qxF "$user" <<<"$requested"; then
     echo "Requested review from $user"
   else
-    echo "::warning::Could not request review from $user - check the login is spelled correctly and has access to $REPO"
+    detail=$(tr '\n' ' ' <"$work/err" | cut -c1-200)
+    echo "::warning::Could not request review from $user${detail:+ - $detail}"
+    echo "  (a pending org invitation or missing repo access both look like this;" \
+         "the other reviewers are unaffected)"
   fi
 done
