@@ -66,12 +66,15 @@ for team in ${TEAMS:-}; do
   fi
 
   requested=$(gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
-    -f "team_reviewers[]=$team" --jq '.requested_teams[].slug' 2>/dev/null || true)
+    -f "team_reviewers[]=$team" --jq '.requested_teams[].slug' 2>"$work/err" || true)
 
   if grep -qxF "$team" <<<"$requested"; then
     echo "Requested review from team $team"
   else
-    echo "::warning::Could not request review from team $team - check the slug is correct and the team has access to $REPO"
+    # Surface the API's own message: the causes look identical from outside
+    # (bad slug, team lacking repo access, or a token that cannot read org
+    # teams) and only GitHub can tell them apart.
+    echo "::warning::Could not request review from team $team - $(tr '\n' ' ' <"$work/err" | cut -c1-300)"
   fi
 done
 
