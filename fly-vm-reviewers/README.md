@@ -40,7 +40,8 @@ block itself and exits quietly when nothing capacity-related changed.
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `files` | yes | — | Space-separated fly config paths to watch |
-| `reviewers` | no | `scojosmith` | Space-separated GitHub logins to request |
+| `reviewers` | no | `scojosmith crerwin dlucas-clx` | Space-separated GitHub logins to request |
+| `teams` | no | — | Space-separated team slugs, in addition to reviewers (see below) |
 | `token` | no | `${{ github.token }}` | Needs `pull-requests: write` |
 
 ## Behavior notes
@@ -50,7 +51,8 @@ block itself and exits quietly when nothing capacity-related changed.
   (`cpu_kind`/`cpus`/`memory`, and `size`), and it stays correct in files where
   `[[vm]]` is not the last block.
 - **One request per reviewer**, so one bad login cannot take the others down
-  with it. Failures log a warning and the rest still go through.
+  with it. A reviewer with a pending org invitation, or without repo access,
+  logs a warning; everyone else is still requested and notified normally.
 - **Success is read back from the response, not the exit code.** GitHub answers
   `200` and silently adds nobody when a login does not exist, so trusting the
   exit code would report success while requesting no one — the exact silent
@@ -60,6 +62,27 @@ block itself and exits quietly when nothing capacity-related changed.
 
 ## Reviewers
 
-Reviewers must have at least read access to the repo, or GitHub rejects the
-request. To change the roster, edit the `reviewers` default in `action.yml` —
-callers pick it up automatically.
+A reviewer must have at least read access to the repo, or GitHub rejects that
+one request with `422 Reviews may only be requested from collaborators`. The
+loop continues, so the remaining reviewers are unaffected.
+
+To change the roster, edit the `reviewers` default in `action.yml` — callers
+pick it up automatically.
+
+### Why not a team?
+
+Requesting the `devops` team would move the roster into GitHub and need no
+edits here. The `teams` input supports it, but it is off by default because
+**`GITHUB_TOKEN` cannot request team reviewers** — teams are org-level and that
+token is scoped to one repo. An org-scoped GitHub App token fails too unless the
+App has org `Members: read`:
+
+```
+GET /orgs/<org>/teams/<slug>   -> 404 Not Found
+POST .../requested_reviewers   -> 422 Could not resolve to a node with the
+                                      global id 'T_kwDO...'
+```
+
+Enabling it therefore means either broadening an existing App's permissions or
+standing up a dedicated one — a lot of machinery for moving a roster out of a
+file. Enumerating logins needs no credential at all.

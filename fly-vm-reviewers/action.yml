@@ -11,8 +11,15 @@ inputs:
     required: true
   reviewers:
     description: Space-separated GitHub logins to request review from
-    required: true
-    default: scojosmith
+    required: false
+    default: scojosmith crerwin dlucas-clx
+  teams:
+    description: >-
+      Space-separated team slugs, in addition to reviewers. Needs a token that
+      can read org teams; the default GITHUB_TOKEN cannot, so this is off by
+      default.
+    required: false
+    default: ""
   token:
     description: Token with pull-requests write access
     required: true
@@ -25,6 +32,7 @@ runs:
       run: ${{ github.action_path }}/run.sh
       env:
         FILES: ${{ inputs.files }}
+        TEAMS: ${{ inputs.teams }}
         REVIEWERS: ${{ inputs.reviewers }}
         GH_TOKEN: ${{ inputs.token }}
         REPO: ${{ github.repository }}

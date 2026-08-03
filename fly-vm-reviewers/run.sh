@@ -8,8 +8,12 @@
 set -euo pipefail
 
 : "${FILES:?files input is required}"
-: "${REVIEWERS:?reviewers input is required}"
 : "${REPO:?}" "${PR_NUMBER:?}" "${BASE_SHA:?}" "${HEAD_SHA:?}"
+
+if [ -z "${TEAMS:-}" ] && [ -z "${REVIEWERS:-}" ]; then
+  echo "::error::Neither teams nor reviewers was set - nobody would be requested"
+  exit 1
+fi
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
@@ -49,13 +53,37 @@ if [ "$changed" -eq 0 ]; then
   exit 0
 fi
 
+pending_teams=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.requested_teams[].slug' 2>/dev/null || true)
 pending=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.requested_reviewers[].login' 2>/dev/null || true)
+
+# A team is requested as a unit, so members who have not accepted their org
+# invitation yet are simply absent rather than causing a failure, and they are
+# picked up automatically once they join - no change here needed.
+for team in ${TEAMS:-}; do
+  if grep -qxF "$team" <<<"$pending_teams"; then
+    echo "Skipping team $team (review already requested)"
+    continue
+  fi
+
+  requested=$(gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
+    -f "team_reviewers[]=$team" --jq '.requested_teams[].slug' 2>"$work/err" || true)
+
+  if grep -qxF "$team" <<<"$requested"; then
+    echo "Requested review from team $team"
+  else
+    # Surface the API's own message: the causes look identical from outside
+    # (bad slug, team lacking repo access, or a token that cannot read org
+    # teams) and only GitHub can tell them apart.
+    echo "::warning::Could not request review from team $team - $(tr '\n' ' ' <"$work/err" | cut -c1-300)"
+  fi
+done
 
 # One request per reviewer, so one bad login cannot take the others down with
 # it. Success is read back from the response rather than the exit code: GitHub
-# answers 200 and silently adds nobody when a login does not exist, so an
-# unnoticed typo or renamed account would otherwise look like it worked.
-for user in $REVIEWERS; do
+# answers 200 and silently adds nobody when a login does not exist (a real
+# account merely lacking access gives 422 instead), so an unnoticed typo or
+# renamed account would otherwise look like it worked.
+for user in ${REVIEWERS:-}; do
   if [ "$user" = "${PR_AUTHOR:-}" ]; then
     echo "Skipping $user (PR author)"
     continue
@@ -67,11 +95,14 @@ for user in $REVIEWERS; do
   fi
 
   requested=$(gh api -X POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
-    -f "reviewers[]=$user" --jq '.requested_reviewers[].login' 2>/dev/null || true)
+    -f "reviewers[]=$user" --jq '.requested_reviewers[].login' 2>"$work/err" || true)
 
   if grep -qxF "$user" <<<"$requested"; then
     echo "Requested review from $user"
   else
-    echo "::warning::Could not request review from $user - check the login is spelled correctly and has access to $REPO"
+    detail=$(tr '\n' ' ' <"$work/err" | cut -c1-200)
+    echo "::warning::Could not request review from $user${detail:+ - $detail}"
+    echo "  (a pending org invitation or missing repo access both look like this;" \
+         "the other reviewers are unaffected)"
   fi
 done
