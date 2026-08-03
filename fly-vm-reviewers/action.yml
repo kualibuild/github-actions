@@ -9,10 +9,14 @@ inputs:
   files:
     description: Space-separated fly config paths to watch for [[vm]] changes
     required: true
+  teams:
+    description: Space-separated team slugs to request review from
+    required: false
+    default: devops
   reviewers:
-    description: Space-separated GitHub logins to request review from
-    required: true
-    default: scojosmith
+    description: Space-separated GitHub logins to request review from, in addition to teams
+    required: false
+    default: ""
   token:
     description: Token with pull-requests write access
     required: true
@@ -25,6 +29,7 @@ runs:
       run: ${{ github.action_path }}/run.sh
       env:
         FILES: ${{ inputs.files }}
+        TEAMS: ${{ inputs.teams }}
         REVIEWERS: ${{ inputs.reviewers }}
         GH_TOKEN: ${{ inputs.token }}
         REPO: ${{ github.repository }}
