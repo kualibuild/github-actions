@@ -1,0 +1,69 @@
+name: Superseded Guard
+description: Skip a deploy (or fail a re-run) when the deploy branch has moved past this commit in deployable files
+author: Kuali
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  branch:
+    description: >-
+      Branch whose tip this run must still match, for workflows that deploy
+      from a branch other than the primary one (e.g. a release branch).
+      Defaults to the repository's primary branch.
+    required: false
+    default: ""
+  sha:
+    description: >-
+      Commit being deployed. Defaults to the checked-out commit (HEAD), which
+      is GITHUB_SHA unless actions/checkout was given a `ref:`.
+    required: false
+    default: ""
+  paths:
+    description: >-
+      Deployable file patterns, one bare glob per line (no `- ` and no quotes),
+      matched like the workflow's `on.push.paths`: in order, with a leading `!`
+      excluding. Copy the workflow's list here so the guard and the trigger
+      agree.
+    required: false
+    default: "**"
+  paths-ignore:
+    description: >-
+      Patterns that never count as deployable, one bare glob per line, matched
+      like `on.push.paths-ignore` (no `!` patterns).
+    required: false
+    default: ""
+  fail-on-rerun:
+    description: >-
+      Fail the step when a re-run (attempt > 1) is superseded, so re-running an
+      old run cannot redeploy old code. When "false" a superseded re-run only
+      warns, like a first attempt.
+    required: false
+    default: "true"
+  working-directory:
+    description: Path of the checked-out repository, if actions/checkout used `path:`
+    required: false
+    default: "."
+
+outputs:
+  deploy:
+    description: '"true" when this run''s commit is still current and the deploy should proceed'
+    value: ${{ steps.guard.outputs.deploy }}
+  tip:
+    description: SHA of the deploy branch tip that was compared against (empty when the guard did not apply)
+    value: ${{ steps.guard.outputs.tip }}
+
+runs:
+  using: composite
+  steps:
+    - id: guard
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ github.action_path }}/run.sh
+      env:
+        PATHS: ${{ inputs.paths }}
+        PATHS_IGNORE: ${{ inputs.paths-ignore }}
+        FAIL_ON_RERUN: ${{ inputs.fail-on-rerun }}
+        BRANCH: ${{ inputs.branch }}
+        SHA: ${{ inputs.sha }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
