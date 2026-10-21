@@ -85,8 +85,11 @@ Set it when the workflow deploys from somewhere else, such as a release branch:
   the root one), `?` and `+` apply to the preceding character, and `paths` is
   read in order: a later `!` pattern excludes a match, a later plain pattern
   includes it again. As in GitHub, `paths` needs at least one pattern without
-  `!`, and `paths-ignore` takes no `!` patterns. Either mistake is an error.
-  Patterns that match no file in the deployed commit get a warning.
+  `!`, and `paths-ignore` takes no `!` patterns. Either mistake is an error,
+  as is a pattern starting with `?` or `+` (they repeat the character before
+  them, so there is nothing to repeat). Each listed pattern that matches no
+  file in the deployed commit gets its own warning, so a typo next to a working
+  pattern still shows up.
 - **Must be a step, not a separate job.** "Re-run failed jobs" reuses a
   succeeded job's outputs instead of running it again, so a guard job would
   never re-check. As a step it re-checks on every attempt.

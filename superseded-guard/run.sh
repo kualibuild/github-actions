@@ -53,9 +53,10 @@ glob_re() {
 }
 
 inc_re=() inc_neg=() ign_re=()
+pat_re=() pat_src=() # every listed pattern, for the per-pattern match check
 has_include=0
 parse_patterns() { # $1: newline-separated patterns; $2: input name (paths | paths-ignore)
-  local p body neg
+  local p body neg re rc
   while IFS= read -r p; do
     p="${p#"${p%%[![:space:]]*}"}"
     p="${p%"${p##*[![:space:]]}"}"
@@ -71,12 +72,21 @@ parse_patterns() { # $1: newline-separated patterns; $2: input name (paths | pat
     [[ "$body" == [\"\']* || "$body" == *[\"\'] ]] \
       && fail "$2: '$p' is quoted; give one bare glob per line (no quotes)."
     [[ -n "$body" ]] || fail "$2: '$p' has no pattern after '!'."
+    re=$(glob_re "$body")
+    # `?` and `+` quantify the preceding character, so a pattern that starts
+    # with one (or has `*?`) is an invalid regex, which `=~` would quietly treat
+    # as matching nothing. Status 2 means the regex didn't compile.
+    rc=0
+    [[ "" =~ $re ]] || rc=$?
+    (( rc != 2 )) || fail "$2: '$p' is not a valid pattern ('?' and '+' repeat the character before them)."
+    pat_re+=("$re")
+    pat_src+=("$2 pattern '$p'")
     if [[ "$2" == paths ]]; then
-      inc_re+=("$(glob_re "$body")")
+      inc_re+=("$re")
       inc_neg+=("$neg")
       (( neg )) || has_include=1
     else
-      ign_re+=("$(glob_re "$body")")
+      ign_re+=("$re")
     fi
   done <<< "$1"
 }
@@ -129,8 +139,16 @@ sha=${SHA:-}
 fetch_commit "$sha" "the commit to deploy"
 sha=$(git rev-parse "$sha^{commit}")
 
-if [[ -z "$(git -c core.quotepath=false ls-tree -r --name-only "$sha" | filter_deployable | head -n 1)" ]]; then
-  echo "::warning::superseded-guard: paths/paths-ignore match no files in ${sha::8}, so no change can count as deployable. Check the patterns."
+# Catch typos: a listed pattern that matches no file in the deployed commit
+# counts nothing, even next to patterns that work. grep -E reads the same POSIX
+# ERE as `=~` and is fast on large trees.
+files=$(git -c core.quotepath=false ls-tree -r --name-only "$sha")
+for i in ${pat_re[@]+"${!pat_re[@]}"}; do
+  grep -qE -- "${pat_re[i]}" <<< "$files" \
+    || echo "::warning::superseded-guard: ${pat_src[i]} matches no file in ${sha::8}. Check it for a typo."
+done
+if [[ -z "$(filter_deployable <<< "$files" | head -n 1)" ]]; then
+  echo "::warning::superseded-guard: no file in ${sha::8} is deployable under paths/paths-ignore, so no change can count. Check the patterns."
 fi
 
 # Compare against the deploy branch: the `branch` input when a workflow deploys

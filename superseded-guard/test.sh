@@ -65,10 +65,13 @@ run() {
 
 # expect <file> <grep -E pattern> <name>: check the last run's log or summary.
 expect() { if grep -qE -- "$2" "$W/$1"; then ok "$3"; else bad "$3 (no /$2/ in $1)"; fi; }
+# expect_not <file> <grep -E pattern> <name>: the pattern must not appear.
+expect_not() { if grep -qE -- "$2" "$W/$1"; then bad "$3 (/$2/ found in $1)"; else ok "$3"; fi; }
 
 echo "# Superseded or current"
 c1=$(commit app/a.txt)
 run "tip of branch deploys"                          true  0 "$c1"
+expect_not log "^::(warning|error)" "  with no annotations"
 c2=$(commit app/b.txt)
 run "superseded by deployable change: warn, skip"    false 0 "$c1"
 expect log "^::warning::Not deploying" "  warning annotation"
@@ -126,7 +129,26 @@ expect log "^::error::.*paths-ignore only excludes" "  says why"
 run "only ! patterns in paths is rejected"           ""    1 "$c6" "PATHS=!docs/**"
 run "bare ! is rejected"                             ""    1 "$c6" "PATHS=!"
 run "patterns matching no files warn"                true  0 "$c6" "PATHS=nothing-here/**"
-expect log "^::warning::.*match no files" "  warning annotation"
+expect log "^::warning::.*'nothing-here/\*\*' matches no file" "  names the pattern"
+expect log "^::warning::.*no file .* is deployable" "  and says nothing is deployable"
+run "a typo beside a working pattern warns"          true  0 "$c5" "PATHS=grafana/**
+grafna/**"
+expect log "^::warning::.*paths pattern 'grafna/\*\*' matches no file" "  names only the typo"
+expect_not log "'grafana/\*\*' matches no file" "  not the working pattern"
+run "a paths-ignore typo warns"                      true  0 "$c6" "PATHS_IGNORE=dcos/**"
+expect log "^::warning::.*paths-ignore pattern 'dcos/\*\*' matches no file" "  names it"
+run "a ! pattern matching nothing warns"             true  0 "$c6" "PATHS=**
+!nothing-here/**"
+expect log "'!nothing-here/\*\*' matches no file" "  names it"
+run "valid patterns give no match warnings"          true  0 "$c6" "PATHS=grafana/**
+docs/**
+!docs/readme.md" "PATHS_IGNORE=app/**"
+expect_not log "^::warning::" "  no warnings"
+run "pattern starting with + is rejected"            ""    1 "$c6" "PATHS=+x"
+expect log "^::error::.*'\+x' is not a valid pattern" "  says why"
+run "pattern starting with ? is rejected"            ""    1 "$c6" "PATHS=?x"
+run "*? is rejected"                                 ""    1 "$c6" "PATHS=docs/*?"
+run "? after a character is still fine"              true  0 "$c6" "PATHS=**.jsonx?"
 
 echo "# History and moves"
 git -C "$W/dev" push -q -f origin "$c4":main
