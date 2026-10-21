@@ -13,17 +13,24 @@ inputs:
       Defaults to the repository's primary branch.
     required: false
     default: ""
+  sha:
+    description: >-
+      Commit being deployed. Defaults to the checked-out commit (HEAD), which
+      is GITHUB_SHA unless actions/checkout was given a `ref:`.
+    required: false
+    default: ""
   paths:
     description: >-
-      Newline-separated glob patterns that count as deployable, in the same
-      syntax as the workflow's `on.push.paths` (a leading `!` excludes). Paste
-      the workflow's list here so the guard and the trigger agree.
+      Deployable file patterns, one bare glob per line (no `- ` and no quotes),
+      matched like the workflow's `on.push.paths`: in order, with a leading `!`
+      excluding. Copy the workflow's list here so the guard and the trigger
+      agree.
     required: false
     default: "**"
   paths-ignore:
     description: >-
-      Newline-separated glob patterns that never count as deployable, in the
-      same syntax as `on.push.paths-ignore`.
+      Patterns that never count as deployable, one bare glob per line, matched
+      like `on.push.paths-ignore` (no `!` patterns).
     required: false
     default: ""
   fail-on-rerun:
@@ -58,4 +65,5 @@ runs:
         PATHS_IGNORE: ${{ inputs.paths-ignore }}
         FAIL_ON_RERUN: ${{ inputs.fail-on-rerun }}
         BRANCH: ${{ inputs.branch }}
+        SHA: ${{ inputs.sha }}
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
