@@ -22,7 +22,9 @@ inputs:
     required: true
     default: '.'
   build-args:
-    description: The build args to use when building
+    description: The build args to use when building. Build args are recorded in the image history, so never pass a credential here; use `secrets`.
+  secrets:
+    description: Build secrets (`id=value`, one per line), exposed to `RUN --mount=type=secret,id=<id>` steps and never written to the image
   platforms:
     default: 'linux/amd64'
 outputs:
@@ -52,6 +54,7 @@ runs:
         build-args: |
           ${{ inputs.build-args }}
           VERSION=${{steps.version.outputs.version}}
+        secrets: ${{ inputs.secrets }}
         tags: ${{ inputs.image }}:${{ steps.version.outputs.version }},${{ inputs.image }}:latest
         cache-from: type=registry,ref=${{ inputs.image }}:latest
         cache-to: type=inline
