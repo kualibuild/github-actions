@@ -119,6 +119,17 @@ filter_deployable() {
     if deployable "$f"; then echo "$f"; fi
   done
 }
+# True when at least one path on stdin is deployable. Stops reading at the first
+# hit instead of piping filter_deployable into `head`: once head exits, every
+# later echo fails with "write error: Broken pipe" (runners ignore SIGPIPE), one
+# log line per remaining file.
+any_deployable() {
+  local f
+  while IFS= read -r f; do
+    if deployable "$f"; then return 0; fi
+  done
+  return 1
+}
 
 # --- Commits ----------------------------------------------------------------
 # Fetch a commit only if it's missing, and never deepen or shallow the clone: a
@@ -147,7 +158,7 @@ for i in ${pat_re[@]+"${!pat_re[@]}"}; do
   grep -qE -- "${pat_re[i]}" <<< "$files" \
     || echo "::warning::superseded-guard: ${pat_src[i]} matches no file in ${sha::8}. Check it for a typo."
 done
-if [[ -z "$(filter_deployable <<< "$files" | head -n 1)" ]]; then
+if ! any_deployable <<< "$files"; then
   echo "::warning::superseded-guard: no file in ${sha::8} is deployable under paths/paths-ignore, so no change can count. Check the patterns."
 fi
 
