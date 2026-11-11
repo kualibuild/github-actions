@@ -10,6 +10,9 @@ BASH_BIN="${1:-bash}"
 W=$(mktemp -d)
 trap 'rm -rf "$W"' EXIT
 pass=0 fail=0
+# GitHub's runner starts steps with SIGPIPE ignored, so a write to a closed pipe
+# is a reported error there rather than a silent exit. Run the guard the same way.
+trap '' PIPE
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 
@@ -209,6 +212,19 @@ git -C "$W/origin.git" symbolic-ref HEAD refs/heads/trunk
 run "primary detected from remote HEAD (trunk)"      false 0 "$tip"
 run "tip of detected primary deploys"                true  0 "$c1" GITHUB_REF_NAME=trunk
 git -C "$W/origin.git" symbolic-ref HEAD refs/heads/main
+
+echo "# Large trees"
+# The "is anything deployable" check must stop at the first hit without writing
+# the rest of the tree to a pipe nobody reads (one "Broken pipe" line per file).
+mkdir -p "$W/dev/bulk"
+for i in $(seq 1 3000); do : > "$W/dev/bulk/file-with-a-reasonably-long-name-$i.txt"; done
+big=$(commit bulk/marker.txt)
+run "tip with thousands of deployable files deploys" true  0 "$big"
+expect_not log "Broken pipe" "  without broken-pipe noise"
+expect_not log "^::(warning|error)" "  with no annotations"
+run "thousands of files, none deployable: warns"     true  0 "$big" "PATHS=nothing/**"
+expect log "no file in .* is deployable" "  nothing-deployable warning"
+expect_not log "Broken pipe" "  without broken-pipe noise"
 
 echo "# Setup errors"
 : > "$W/out"
